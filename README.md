@@ -2,13 +2,13 @@
 
 ## نظرة عامة
 
-Keyboard X هو تطبيق لوحة مفاتيح Android Native حقيقي، مكتوب بلغة Kotlin. يوفر خدمة إدخال فعلية (IME - Input Method Editor) تدعم اللغات العربية والإنجليزية.
+Keyboard X هو تطبيق لوحة مفاتيح Android Native حقيقي، مكتوب بلغة Kotlin. يوفر خدمة إدخال فعلية (IME - Input Method Editor) تدعم اللغات المختلفة.
 
-## المشروع في المرحلة الأولى
+## حالة المشروع الحالية
 
-هذا المشروع حاليًا في **المرحلة الأولى (Phase 1)** - مرحلة تأسيس الهيكل الأساسي.
+هذا المشروع حاليًا في **المرحلة الثانية (Phase 2)** - مرحلة إعداد نظام البناء عبر GitHub Actions.
 
-### معايير النجاح للمرحلة الأولى
+### معايير النجاح للمرحلة الأولى (مكتملة ✅)
 
 - ✅ مشروع Android Native حقيقي
 - ✅ اسم الحزمة: `com.keyboardx.app`
@@ -17,15 +17,26 @@ Keyboard X هو تطبيق لوحة مفاتيح Android Native حقيقي، م�
 - ✅ خدمة InputMethodService معرفة
 - ✅ تكوين رسمي صحيح في AndroidManifest.xml
 - ✅ ملفات موارد IME المطلوبة
-- ✅ بنية مشروع نظيفة وقابلة ل��توسع
+- ✅ بنية مشروع نظيفة وقابلة للتوسع
 - ✅ لا توجد WebView أو PWA
 - ✅ اعتماديات محدودة وضرورية فقط
-- ✅ جاهز لربط GitHub Actions في المرحلة 2
+
+### معايير النجاح للمرحلة الثانية (مكتملة ✅)
+
+- ✅ تكوين GitHub Actions Workflow
+- ✅ بناء تلقائي عند كل push و pull request
+- ✅ إعداد أدوات البناء تلقائيًا (Java 17، Android SDK 35، Gradle)
+- ✅ بناء Debug APK بنجاح
+- ✅ رفع APK كـ Artifact قابل للتنزيل
+- ✅ رفع سجلات البناء عند الفشل
 
 ## بنية المشروع
 
 ```
 keyboard-X/
+├── .github/
+│   └── workflows/
+│       └── build.yml
 ├── app/
 │   ├── src/
 │   │   ├── main/
@@ -45,6 +56,7 @@ keyboard-X/
 ├── build.gradle.kts
 ├── settings.gradle.kts
 ├── gradle.properties
+├── PHASE_1_CHECKLIST.md
 └── README.md
 ```
 
@@ -52,11 +64,11 @@ keyboard-X/
 
 | الأداة | الإصدار | الملاحظات |
 |-------|---------|----------|
-| Android Gradle Plugin (AGP) | 8.7.0 | الأحدث والمستقر |
-| Gradle | ✓ مدار بـ wrapper | متوافق مع AGP 8.7.0 |
+| Android Gradle Plugin (AGP) | 8.7.0 | متوافق مع Gradle 8.9 |
+| Gradle | ✓ مُدار بواسطة wrapper | متوافق مع AGP 8.7.0 |
 | Kotlin | 2.0.10 | متوافق مع AGP 8.7.0 |
-| Compile SDK | 35 | أحدث إصدار مستقر |
-| Target SDK | 35 | أحدث إصدار مستقر |
+| Compile SDK | 35 | Android SDK المُكوّن في CI |
+| Target SDK | 35 | مطابق لملف Gradle الحالي |
 | Min SDK | 24 | Android 7.0 |
 | Java/JVM | 17 | متوافق مع أدوات البناء الحديثة |
 
@@ -79,25 +91,30 @@ androidx.test.espresso:espresso-core:3.5.1
 
 ## كيفية البناء
 
+### البناء عبر GitHub Actions
+
+يتم تشغيل Workflow تلقائيًا عند كل push أو pull request على الفروع: `main`, `master`, `develop`.
+
+**ما يحدث في الـ Workflow:**
+
+1. يتم إعداد Java 17 من Temurin
+2. يتم تثبيت Android SDK وplatforms;android-35 وbuild-tools;35.0.0
+3. يتم إعداد Gradle تلقائيًا
+4. يتم بناء Debug APK
+5. يتم رفع APK كـ Artifact بـ اسم `keyboardx-debug-apk` (قابل للتنزيل لمدة 30 يوم)
+6. في حالة الفشل، يتم رفع سجلات البناء
+
+**للوصول إلى الـ Artifacts:**
+
+- اذهب إلى GitHub Actions في المستودع
+- افتح آخر workflow run
+- حمّل الـ Artifact المسمى `keyboardx-debug-apk`
+
 ### البناء المحلي
-
-```bash
-./gradlew build
-```
-
-### بناء APK للتطوير
 
 ```bash
 ./gradlew assembleDebug
 ```
-
-### بناء Release
-
-```bash
-./gradlew assembleRelease
-```
-
-**ملاحظة:** البناء التلقائي والتوقيع والنشر سيتم إعدادها عبر GitHub Actions في **المرحلة 2**.
 
 ## IME Configuration
 
@@ -117,16 +134,12 @@ androidx.test.espresso:espresso-core:3.5.1
 
 ## التطوير المستقبلي
 
-### المرحلة 2: إعداد نظام البناء عبر GitHub Actions
-- تكوين خط أنابيب CI/CD
-- بناء وتجميع التطبيق تلقائيًا
-- تشغيل الاختبارات الآلية
-- توقيع التطبيق تلقائيًا
-- نشر artifacts (APK/AAB)
+### المرحلة 3: تطوير واجهة لوحة المفاتيح
+- تطوير Keyboard View الأساسية
+- إضافة تخطيطات مفاتيح أساسية
+- إضافة دعم إدخال النصوص
 
 ### المراحل اللاحقة
-- تطوير واجهة لوحة المفاتيح (Keyboard View)
-- إضافة تخطيطات مفاتيح متعددة
 - دعم اللغات المتعددة بشكل كامل
 - ميزات متقدمة:
   - تصحيح تلقائي
@@ -135,14 +148,13 @@ androidx.test.espresso:espresso-core:3.5.1
   - إعدادات مستخدم
   - إحصائيات الاستخدام
 
-## القيود الحالية (Phase 1)
+## القيود الحالية (Phase 2)
 
 - لا توجد واجهة رسومية فعالة للوحة المفاتيح
 - لا توجد ميزات متقدمة
 - لا توجد قاعدة بيانات
 - لا توجد تحليلات
 - لا Firebase أو Supabase
-- لا GitHub Actions بعد
 
 هذه ستُضاف تدريجيًا في المراحل اللاحقة.
 
@@ -153,6 +165,7 @@ androidx.test.espresso:espresso-core:3.5.1
 - ✅ IME حقيقي Native (بدون WebView أو PWA)
 - ✅ بدون اعتماديات غير ضرورية
 - ✅ كود نظيف وقابل للصيانة
+- ✅ CI/CD محسّن عبر GitHub Actions
 
 ## الترخيص
 
@@ -164,4 +177,4 @@ Mohammed Nasser
 
 ---
 
-**آخر تحديث:** Phase 1 Foundation Finalized - 2026-10-02
+**آخر تحديث:** Phase 2 CI/CD Integration Complete - 2026-10-02
