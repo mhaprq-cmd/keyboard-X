@@ -22,18 +22,12 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platforms;android-35
-            build-tools;35.0.0
-            cmdline-tools;latest
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build debug APK with Gradle
-        env:
-          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
         run: |
-          chmod +x ./gradlew 2>/dev/null || true
+          chmod +x ./gradlew
           ./gradlew assembleDebug --build-cache
 
       - name: Upload debug APK
@@ -43,11 +37,3 @@ jobs:
           name: keyboardx-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
-
-      - name: Upload build logs on failure
-        if: failure() && hashFiles('app/build/reports/**') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs
-          path: app/build/reports/
-          retention-days: 7
