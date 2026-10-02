@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Keyboard X</string>
+    <string name="ime_name">Keyboard X</string>
+    <string name="ime_description">A native Android keyboard supporting Arabic and English</string>
+    <string name="activation_instructions">To enable this keyboard, go to Settings → Language &amp; input → Virtual keyboard → Manage keyboards and enable Keyboard X</string>
+</resources>
