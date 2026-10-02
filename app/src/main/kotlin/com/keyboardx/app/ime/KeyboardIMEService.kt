@@ -61,7 +61,7 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(editorInfo, restarting)
         currentEditorInfo = editorInfo
-        // Get the actual InputConnection from the InputMethodService
+        // Get the actual InputConnection from InputMethodService via currentInputConnection() method
         currentInputConnection = currentInputConnection()
         
         // Reset keyboard state when input starts or restarts
@@ -88,7 +88,7 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
-        // Get the actual InputConnection from the InputMethodService
+        // Get the actual InputConnection from InputMethodService via currentInputConnection() method
         currentInputConnection = currentInputConnection()
     }
 
@@ -128,9 +128,16 @@ class KeyboardIMEService : InputMethodService() {
             KeyEvent.KEYCODE_SPACE -> handleSpace()
             KeyEvent.KEYCODE_ENTER -> handleEnter()
             else -> {
-                // Numeric or character key
-                val character = keyCode.toChar().toString()
-                inputConnection.commitText(character, 1)
+                // For numeric and character keys, safely convert to character
+                try {
+                    val character = KeyEvent.keyCodeToString(keyCode)
+                    // If it's a printable character, commit it
+                    if (character.length == 1) {
+                        inputConnection.commitText(character, 1)
+                    }
+                } catch (e: Exception) {
+                    // Silently ignore conversion errors for non-character keys
+                }
             }
         }
     }
