@@ -61,7 +61,8 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(editorInfo, restarting)
         currentEditorInfo = editorInfo
-        currentInputConnection = currentInputConnection
+        // Get the actual InputConnection from the InputMethodService
+        currentInputConnection = currentInputConnection()
         
         // Reset keyboard state when input starts or restarts
         if (!restarting) {
@@ -87,7 +88,8 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
-        currentInputConnection = currentInputConnection
+        // Get the actual InputConnection from the InputMethodService
+        currentInputConnection = currentInputConnection()
     }
 
     /**
@@ -213,9 +215,6 @@ class KeyboardIMEService : InputMethodService() {
      * Hides the soft input keyboard.
      */
     private fun hideSoftInput() {
-        val windowToken = window?.window?.decorView?.windowToken
-        if (windowToken != null) {
-            requestHideSelf(0)
-        }
+        requestHideSelf(0)
     }
 }
