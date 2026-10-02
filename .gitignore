@@ -2,50 +2,26 @@
 .gradle/
 build/
 *.apk
-*.aar
-*.ap_
-*.aab
 
-# Local configuration file (sdk path, etc)
+# Android
+.idea/
+*.iml
 local.properties
 
-# Log/OS Files
-*.log
-.DS_Store
+# Gradle wrapper (سيتم تحميله ديناميكياً في CI/CD)
+# gradle/wrapper/gradle-wrapper.jar
 
-# Android Studio generated files and folders
-.idea/
+# IDE
+.DS_Store
+*.swp
+*.swo
+*~
 .classpath
 .project
 .settings/
-*.iml
-*.iws
-*.ipr
+*.sublime-project
+*.sublime-workspace
 
-# Emulator logs
-emu.log
-
-# Gradle wrapper
-gradlew
-gradlew.bat
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Kotlin
-*.kotlin_module
-
-# Output of the go coverage tool
-*.out
-
-# Test binary, built with `go test -c`
-*.test
-
-# IntelliJ
-*.iml
-.idea/
+# Build output
+out/
+bin/
