@@ -7,17 +7,22 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 
 /**
- * Main IME service for Keyboard X.
+ * Main IME service for Keyboard X - Phase 3.
  *
- * Phase 3: Stable InputMethodService integration with a real, buildable Input View.
- * Properly handles InputConnection without shadowing.
- * Implements all required callbacks for IME service lifecycle.
+ * Provides native Android IME functionality with proper InputConnection handling.
+ * Connects to KeyboardInputView for input UI and handles text editing operations.
+ *
+ * Phase 3 scope:
+ * - Fixed InputConnection shadowing issue
+ * - Real, native InputMethodService integration
+ * - Callback-based communication with input view
+ * - No Phase 4 keyboard layout logic
  */
 class KeyboardIMEService : InputMethodService() {
 
     private var keyboardInputView: KeyboardInputView? = null
     private var currentEditorInfo: EditorInfo? = null
-    private var currentInputConnection: InputConnection? = null
+    private var activeInputConnection: InputConnection? = null
 
     override fun onCreateInputView(): View? {
         keyboardInputView = KeyboardInputView(this).apply {
@@ -49,8 +54,8 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(editorInfo, restarting)
         currentEditorInfo = editorInfo
-        // Get the real InputConnection from InputMethodService
-        currentInputConnection = currentInputConnection()
+        // Get the real InputConnection from InputMethodService without shadowing
+        activeInputConnection = getCurrentInputConnection()
 
         if (!restarting) {
             resetKeyboardState()
@@ -59,16 +64,16 @@ class KeyboardIMEService : InputMethodService() {
 
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
-        currentInputConnection = null
+        activeInputConnection = null
         currentEditorInfo = null
-        keyboardInputView?.clearFocus()
+        keyboardInputView?.clearFocusAndRefresh()
     }
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
-        // Get the real InputConnection from InputMethodService
-        currentInputConnection = currentInputConnection()
+        // Get the real InputConnection from InputMethodService without shadowing
+        activeInputConnection = getCurrentInputConnection()
     }
 
     override fun onExtractedTextClicked() {
@@ -93,22 +98,22 @@ class KeyboardIMEService : InputMethodService() {
     }
 
     private fun handleTextInput(text: String) {
-        val inputConnection = currentInputConnection ?: return
+        val inputConnection = activeInputConnection ?: return
         inputConnection.commitText(text, 1)
     }
 
     private fun handleDelete() {
-        val inputConnection = currentInputConnection ?: return
+        val inputConnection = activeInputConnection ?: return
         inputConnection.deleteSurroundingText(1, 0)
     }
 
     private fun handleSpace() {
-        val inputConnection = currentInputConnection ?: return
+        val inputConnection = activeInputConnection ?: return
         inputConnection.commitText(" ", 1)
     }
 
     private fun handleEnter() {
-        val inputConnection = currentInputConnection ?: return
+        val inputConnection = activeInputConnection ?: return
         val editorInfo = currentEditorInfo ?: return
 
         when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
