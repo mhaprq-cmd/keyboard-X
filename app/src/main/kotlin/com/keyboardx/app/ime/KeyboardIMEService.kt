@@ -1,6 +1,7 @@
 package com.keyboardx.app.ime
 
 import android.inputmethodservice.InputMethodService
+import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -54,6 +55,7 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(editorInfo, restarting)
         currentEditorInfo = editorInfo
+
         // Get the real InputConnection from InputMethodService without shadowing
         activeInputConnection = getCurrentInputConnection()
 
@@ -72,6 +74,7 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
+
         // Get the real InputConnection from InputMethodService without shadowing
         activeInputConnection = getCurrentInputConnection()
     }
@@ -121,19 +124,26 @@ class KeyboardIMEService : InputMethodService() {
                 inputConnection.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
                 hideSoftInput()
             }
+
             EditorInfo.IME_ACTION_SEND -> {
                 inputConnection.performEditorAction(EditorInfo.IME_ACTION_SEND)
                 hideSoftInput()
             }
+
             EditorInfo.IME_ACTION_NEXT -> {
                 inputConnection.performEditorAction(EditorInfo.IME_ACTION_NEXT)
             }
-            EditorInfo.IME_ACTION_DONE, EditorInfo.IME_ACTION_GO -> {
-                inputConnection.performEditorAction(editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION)
+
+            EditorInfo.IME_ACTION_DONE,
+            EditorInfo.IME_ACTION_GO -> {
+                inputConnection.performEditorAction(
+                    editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
+                )
                 hideSoftInput()
             }
+
             else -> {
-                if ((editorInfo.inputType and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0) {
+                if ((editorInfo.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0) {
                     inputConnection.commitText("\n", 1)
                 } else {
                     hideSoftInput()
