@@ -1,0 +1,115 @@
+name: Repair malformed Git paths
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Repair malformed Git tree entries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          REPO="${{ github.repository }}"
+          BRANCH="${{ github.ref_name }}"
+
+          echo "Reading current branch..."
+
+          REF_JSON=$(gh api "repos/$REPO/git/ref/heads/$BRANCH")
+          COMMIT_SHA=$(echo "$REF_JSON" | jq -r '.object.sha')
+
+          COMMIT_JSON=$(gh api "repos/$REPO/git/commits/$COMMIT_SHA")
+          BASE_TREE=$(echo "$COMMIT_JSON" | jq -r '.tree.sha')
+
+          echo "Current commit: $COMMIT_SHA"
+          echo "Current tree:   $BASE_TREE"
+
+          echo "Searching for malformed paths..."
+
+          TREE_JSON=$(gh api "repos/$REPO/git/trees/$BASE_TREE?recursive=1")
+
+          BAD_PATHS=$(echo "$TREE_JSON" | jq -r '
+            .tree[]
+            | select(
+                (.path | contains("\n"))
+                or
+                (.path | contains("content\":"))
+              )
+            | .path
+          ')
+
+          if [ -z "$BAD_PATHS" ]; then
+            echo "No malformed paths found."
+            exit 0
+          fi
+
+          echo "Malformed paths found:"
+          printf '%s\n' "$BAD_PATHS"
+
+          echo "Building deletion tree..."
+
+          jq -n --argjson tree "$TREE_JSON" '
+            [
+              $tree.tree[]
+              | select(
+                  (.path | contains("\n"))
+                  or
+                  (.path | contains("content\":"))
+                )
+              | {
+                  path: .path,
+                  mode: .mode,
+                  type: .type,
+                  sha: null
+                }
+            ]
+          ' > /tmp/deletions.json
+
+          echo "Creating repaired Git tree..."
+
+          NEW_TREE=$(jq -n \
+            --arg base_tree "$BASE_TREE" \
+            --slurpfile deletions /tmp/deletions.json \
+            '{
+              base_tree: $base_tree,
+              tree: $deletions[0]
+            }' \
+            | gh api "repos/$REPO/git/trees" \
+                --method POST \
+                --input - \
+            | jq -r '.sha')
+
+          echo "New tree: $NEW_TREE"
+
+          echo "Creating repair commit..."
+
+          NEW_COMMIT=$(jq -n \
+            --arg message "Repair malformed Git paths" \
+            --arg tree "$NEW_TREE" \
+            --arg parent "$COMMIT_SHA" \
+            '{
+              message: $message,
+              tree: $tree,
+              parents: [$parent]
+            }' \
+            | gh api "repos/$REPO/git/commits" \
+                --method POST \
+                --input - \
+            | jq -r '.sha')
+
+          echo "New commit: $NEW_COMMIT"
+
+          echo "Updating branch..."
+
+          gh api "repos/$REPO/git/refs/heads/$BRANCH" \
+            --method PATCH \
+            -f sha="$NEW_COMMIT"
+
+          echo "Repair completed successfully."
