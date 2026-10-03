@@ -1,0 +1,91 @@
+package com.keyboardx.app.ime
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.util.AttributeSet
+import android.view.KeyEvent
+import android.view.MotionEvent
+import android.view.View
+
+/**
+ * Minimal but functional Input View for Keyboard X IME.
+ *
+ * Phase 3 keeps the implementation native and buildable without introducing any
+ * extra dependencies or a custom keyboard engine. The view exposes the basic
+ * callbacks needed by InputMethodService while Phase 4 handles actual key layout.
+ */
+class KeyboardInputView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
+
+    private var onKeyboardActionListener: OnKeyboardActionListener? = null
+
+    private val paint = Paint().apply {
+        color = 0xFF000000.toInt()
+        isAntiAlias = true
+    }
+
+    init {
+        setBackgroundColor(0xFFE0E0E0.toInt())
+        isFocusable = true
+        isClickable = true
+    }
+
+    interface OnKeyboardActionListener {
+        fun onKeyPress(keyCode: Int)
+        fun onText(text: String)
+        fun onDelete()
+        fun onSpace()
+        fun onEnter()
+    }
+
+    fun setOnKeyboardActionListener(listener: OnKeyboardActionListener?) {
+        onKeyboardActionListener = listener
+    }
+
+    fun clearFocusAndRefresh() {
+        clearFocus()
+        invalidate()
+    }
+
+    fun resetState() {
+        invalidate()
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                isPressed = true
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                isPressed = false
+                val x = event.x
+                when {
+                    x < width * 0.25f -> onKeyboardActionListener?.onDelete()
+                    x in (width * 0.25f)..(width * 0.75f) -> onKeyboardActionListener?.onSpace()
+                    else -> onKeyboardActionListener?.onEnter()
+                }
+                performClick()
+                return true
+            }
+            else -> Unit
+        }
+        return super.onTouchEvent(event)
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        paint.textSize = 14f
+        paint.color = 0xFF666666.toInt()
+        canvas.drawText("Keyboard X IME Active", 16f, 30f, paint)
+    }
+}
