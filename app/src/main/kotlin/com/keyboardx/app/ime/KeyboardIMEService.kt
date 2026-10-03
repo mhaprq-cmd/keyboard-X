@@ -9,8 +9,9 @@ import android.view.inputmethod.InputConnection
 /**
  * Main IME service for Keyboard X.
  *
- * Phase 3 focuses on stabilizing the real Android InputMethodService integration and a minimal
- * input view that can receive user action callbacks without shadowing the actual InputConnection.
+ * Phase 3: Stable InputMethodService integration with a real, buildable Input View.
+ * Properly handles InputConnection without shadowing.
+ * Implements all required callbacks for IME service lifecycle.
  */
 class KeyboardIMEService : InputMethodService() {
 
@@ -48,6 +49,7 @@ class KeyboardIMEService : InputMethodService() {
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(editorInfo, restarting)
         currentEditorInfo = editorInfo
+        // Get the real InputConnection from InputMethodService
         currentInputConnection = currentInputConnection()
 
         if (!restarting) {
@@ -59,12 +61,13 @@ class KeyboardIMEService : InputMethodService() {
         super.onFinishInputView(finishingInput)
         currentInputConnection = null
         currentEditorInfo = null
-        keyboardInputView?.clearFocusAndRefresh()
+        keyboardInputView?.clearFocus()
     }
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
+        // Get the real InputConnection from InputMethodService
         currentInputConnection = currentInputConnection()
     }
 
