@@ -21,14 +21,59 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Verify Gradle Wrapper
+        run: |
+          set -e
+
+          test -f ./gradlew
+          test -f ./gradle/wrapper/gradle-wrapper.properties
+
+          if [ ! -f ./gradle/wrapper/gradle-wrapper.jar ]; then
+            mkdir -p /tmp/gradle
+
+            curl -fL \
+              https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+              -o /tmp/gradle/gradle-8.9-bin.zip
+
+            unzip -q /tmp/gradle/gradle-8.9-bin.zip \
+              -d /tmp/gradle
+
+            mkdir -p /tmp/wrapper-project
+
+            printf 'rootProject.name = "wrapper-project"\n' \
+              > /tmp/wrapper-project/settings.gradle.kts
+
+            cd /tmp/wrapper-project
+
+            /tmp/gradle/gradle-8.9/bin/gradle wrapper \
+              --gradle-version 8.9 \
+              --distribution-type bin
+
+            mkdir -p "$GITHUB_WORKSPACE/gradle/wrapper"
+
+            cp \
+              /tmp/wrapper-project/gradle/wrapper/gradle-wrapper.jar \
+              "$GITHUB_WORKSPACE/gradle/wrapper/gradle-wrapper.jar"
+          fi
+
+          test -f ./gradle/wrapper/gradle-wrapper.jar
+
+          chmod +x ./gradlew
+
       - name: Set up Android SDK
         run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          set -e
+
+          echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
       - name: Build debug APK with Gradle
         run: |
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --build-cache
+          set -e
+          ./gradlew assembleDebug
 
       - name: Upload debug APK
         if: success()
@@ -37,5 +82,3 @@ jobs:
           name: keyboardx-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
-
-# Workflow refresh after Git tree repair
