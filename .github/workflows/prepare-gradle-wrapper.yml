@@ -32,21 +32,27 @@ jobs:
           unzip -q /tmp/gradle/gradle-8.9-bin.zip \
             -d /tmp/gradle
 
+      - name: Create temporary Gradle project
+        run: |
+          set -e
+          mkdir -p /tmp/wrapper-project
+          printf "rootProject.name = 'wrapper-project'\n" > /tmp/wrapper-project/settings.gradle.kts
+
       - name: Generate Gradle Wrapper
         run: |
           set -e
-          cd /tmp/gradle/gradle-8.9
-          ./bin/gradle wrapper \
+          cd /tmp/wrapper-project
+          /tmp/gradle/gradle-8.9/bin/gradle wrapper \
             --gradle-version 8.9 \
             --distribution-type bin
 
       - name: Copy Gradle Wrapper JAR
         run: |
           set -e
-          test -f /tmp/gradle/gradle-8.9/gradle/wrapper/gradle-wrapper.jar
+          test -f /tmp/wrapper-project/gradle/wrapper/gradle-wrapper.jar
           mkdir -p gradle/wrapper
           cp \
-            /tmp/gradle/gradle-8.9/gradle/wrapper/gradle-wrapper.jar \
+            /tmp/wrapper-project/gradle/wrapper/gradle-wrapper.jar \
             gradle/wrapper/gradle-wrapper.jar
           test -f gradle/wrapper/gradle-wrapper.jar
 
