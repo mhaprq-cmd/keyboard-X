@@ -36,7 +36,7 @@ jobs:
         run: |
           set -e
           mkdir -p /tmp/wrapper-project
-          printf "rootProject.name = 'wrapper-project'\n" > /tmp/wrapper-project/settings.gradle.kts
+          printf 'rootProject.name = "wrapper-project"\n' > /tmp/wrapper-project/settings.gradle.kts
 
       - name: Generate Gradle Wrapper
         run: |
