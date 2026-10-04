@@ -25,6 +25,9 @@ class KeyboardInputView @JvmOverloads constructor(
     private val keyBounds = mutableListOf<RectF>()
     private val keyReferences = mutableListOf<Key>()
 
+    private val symbolOutputByLabel: Map<String, String> =
+        KeyboardSymbols.all.associate { it.label to it.outputText }
+
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xFFE0E0E0.toInt()
         style = Paint.Style.FILL
@@ -89,20 +92,39 @@ class KeyboardInputView @JvmOverloads constructor(
         rebuildKeyBounds()
         invalidate()
     }
+
+    fun getAvailableSymbols(): List<KeyboardSymbol> {
+        return KeyboardSymbols.all
+    }
+
+    fun insertSymbol(symbol: KeyboardSymbol) {
+        if (symbol.outputText.isNotEmpty()) {
+            onKeyboardActionListener?.onText(symbol.outputText)
+        }
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasure)
         val desiredHeight = dp(280f).toInt()
 
         val height = when (MeasureSpec.getMode(heightMeasureSpec)) {
             MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec)
-            MeasureSpec.AT_MOST -> minOf(desiredHeight, MeasureSpec.getSize(heightMeasureSpec))
+            MeasureSpec.AT_MOST -> minOf(
+                desiredHeight,
+                MeasureSpec.getSize(heightMeasureSpec)
+            )
             else -> desiredHeight
         }
 
         setMeasuredDimension(width, max(dp(220f).toInt(), height))
     }
 
-    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+    override fun onSizeChanged(
+        width: Int,
+        height: Int,
+        oldWidth: Int,
+        oldHeight: Int
+    ) {
         super.onSizeChanged(width, height, oldWidth, oldHeight)
         rebuildKeyBounds()
     }
@@ -123,12 +145,14 @@ class KeyboardInputView @JvmOverloads constructor(
         val availableHeight = height.toFloat() - verticalPadding * 2
 
         val rowCount = keyboardLayout.rows.size
-        val rowHeight = (availableHeight - keyGap * (rowCount - 1)) / rowCount
+        val rowHeight =
+            (availableHeight - keyGap * (rowCount - 1)) / rowCount
 
         var top = verticalPadding
 
         keyboardLayout.rows.forEach { row ->
             val keyCount = row.keys.size
+
             if (keyCount > 0) {
                 val keyWidth =
                     (availableWidth - keyGap * (keyCount - 1)) / keyCount
@@ -197,7 +221,8 @@ class KeyboardInputView @JvmOverloads constructor(
 
             val fontMetrics = textPaint.fontMetrics
             val textCenterY =
-                rect.centerY() - (fontMetrics.ascent + fontMetrics.descent) / 2f
+                rect.centerY() -
+                    (fontMetrics.ascent + fontMetrics.descent) / 2f
 
             canvas.drawText(
                 label,
@@ -219,6 +244,11 @@ class KeyboardInputView @JvmOverloads constructor(
 
         return key.label
     }
+
+    private fun getSymbolOutput(key: Key): String? {
+        return symbolOutputByLabel[key.label]
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -245,7 +275,10 @@ class KeyboardInputView @JvmOverloads constructor(
                 pressedKeyIndex = -1
                 invalidate()
 
-                if (pressedIndex >= 0 && pressedIndex == releasedIndex) {
+                if (
+                    pressedIndex >= 0 &&
+                    pressedIndex == releasedIndex
+                ) {
                     handleKey(keyReferences[pressedIndex])
                 }
 
@@ -293,12 +326,18 @@ class KeyboardInputView @JvmOverloads constructor(
             }
 
             else -> {
-                val output = key.outputText ?: getDisplayLabel(key)
+                val output =
+                    key.outputText
+                        ?: getSymbolOutput(key)
+                        ?: getDisplayLabel(key)
 
                 if (output.isNotEmpty()) {
                     onKeyboardActionListener?.onText(output)
 
-                    if (shiftEnabled && key.code in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z) {
+                    if (
+                        shiftEnabled &&
+                        key.code in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z
+                    ) {
                         shiftEnabled = false
                         invalidate()
                     }
