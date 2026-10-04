@@ -80,7 +80,7 @@ object KeyboardLayoutProvider {
                         Key(KeyEvent.KEYCODE_B, "b"),
                         Key(KeyEvent.KEYCODE_N, "n"),
                         Key(KeyEvent.KEYCODE_M, "m"),
-                        Key(KeyEvent.KEYCODE_BACKSPACE, "⌫"),
+                        Key(KeyEvent.KEYCODE_DEL, "⌫")
                     )
                 ),
                 Row(
