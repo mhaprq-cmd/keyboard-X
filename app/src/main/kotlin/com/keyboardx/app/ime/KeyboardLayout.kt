@@ -1,9 +1,7 @@
 package com.keyboardx.app.ime
 
-/**
- * Data class representing keyboard layout configuration.
- * Supports Arabic and English layouts.
- */
+import android.view.KeyEvent
+
 data class Key(
     val code: Int,
     val label: String,
@@ -20,27 +18,85 @@ data class KeyboardLayout(
     val language: Language
 ) {
     enum class Language {
-        ARABIC, ENGLISH
+        ARABIC,
+        ENGLISH
     }
 }
 
-/**
- * Keyboard layout provider.
- * Manages different keyboard layouts for supported languages.
- */
 object KeyboardLayoutProvider {
 
     fun getEnglishLayout(): KeyboardLayout {
-        // Placeholder for English QWERTY layout
         return KeyboardLayout(
             name = "English QWERTY",
-            rows = emptyList(),
+            rows = listOf(
+                Row(
+                    listOf(
+                        Key(KeyEvent.KEYCODE_1, "1"),
+                        Key(KeyEvent.KEYCODE_2, "2"),
+                        Key(KeyEvent.KEYCODE_3, "3"),
+                        Key(KeyEvent.KEYCODE_4, "4"),
+                        Key(KeyEvent.KEYCODE_5, "5"),
+                        Key(KeyEvent.KEYCODE_6, "6"),
+                        Key(KeyEvent.KEYCODE_7, "7"),
+                        Key(KeyEvent.KEYCODE_8, "8"),
+                        Key(KeyEvent.KEYCODE_9, "9"),
+                        Key(KeyEvent.KEYCODE_0, "0")
+                    )
+                ),
+                Row(
+                    listOf(
+                        Key(KeyEvent.KEYCODE_Q, "q"),
+                        Key(KeyEvent.KEYCODE_W, "w"),
+                        Key(KeyEvent.KEYCODE_E, "e"),
+                        Key(KeyEvent.KEYCODE_R, "r"),
+                        Key(KeyEvent.KEYCODE_T, "t"),
+                        Key(KeyEvent.KEYCODE_Y, "y"),
+                        Key(KeyEvent.KEYCODE_U, "u"),
+                        Key(KeyEvent.KEYCODE_I, "i"),
+                        Key(KeyEvent.KEYCODE_O, "o"),
+                        Key(KeyEvent.KEYCODE_P, "p")
+                    )
+                ),
+                Row(
+                    listOf(
+                        Key(KeyEvent.KEYCODE_A, "a"),
+                        Key(KeyEvent.KEYCODE_S, "s"),
+                        Key(KeyEvent.KEYCODE_D, "d"),
+                        Key(KeyEvent.KEYCODE_F, "f"),
+                        Key(KeyEvent.KEYCODE_G, "g"),
+                        Key(KeyEvent.KEYCODE_H, "h"),
+                        Key(KeyEvent.KEYCODE_J, "j"),
+                        Key(KeyEvent.KEYCODE_K, "k"),
+                        Key(KeyEvent.KEYCODE_L, "l")
+                    )
+                ),
+                Row(
+                    listOf(
+                        Key(KeyEvent.KEYCODE_SHIFT_LEFT, "⇧"),
+                        Key(KeyEvent.KEYCODE_Z, "z"),
+                        Key(KeyEvent.KEYCODE_X, "x"),
+                        Key(KeyEvent.KEYCODE_C, "c"),
+                        Key(KeyEvent.KEYCODE_V, "v"),
+                        Key(KeyEvent.KEYCODE_B, "b"),
+                        Key(KeyEvent.KEYCODE_N, "n"),
+                        Key(KeyEvent.KEYCODE_M, "m"),
+                        Key(KeyEvent.KEYCODE_BACKSPACE, "⌫"),
+                    )
+                ),
+                Row(
+                    listOf(
+                        Key(KeyEvent.KEYCODE_COMMA, ","),
+                        Key(KeyEvent.KEYCODE_SPACE, "Space", " "),
+                        Key(KeyEvent.KEYCODE_PERIOD, "."),
+                        Key(KeyEvent.KEYCODE_ENTER, "↵")
+                    )
+                )
+            ),
             language = KeyboardLayout.Language.ENGLISH
         )
     }
 
     fun getArabicLayout(): KeyboardLayout {
-        // Placeholder for Arabic layout
         return KeyboardLayout(
             name = "Arabic",
             rows = emptyList(),
