@@ -3,17 +3,13 @@ package com.keyboardx.app.ime
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.max
 
-/**
- * Custom Input View for the Keyboard X IME.
- * Handles keyboard input display and touch events.
- *
- * Phase 3: Real, buildable implementation for IME integration.
- * Advanced keyboard layout and styling will be added in Phase 4.
- */
 class KeyboardInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -22,9 +18,38 @@ class KeyboardInputView @JvmOverloads constructor(
 
     private var onKeyboardActionListener: OnKeyboardActionListener? = null
 
-    private val paint = Paint().apply {
-        color = 0xFF000000.toInt()
-        isAntiAlias = true
+    private var keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
+    private var shiftEnabled = false
+    private var pressedKeyIndex = -1
+
+    private val keyBounds = mutableListOf<RectF>()
+    private val keyReferences = mutableListOf<Key>()
+
+    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFE0E0E0.toInt()
+        style = Paint.Style.FILL
+    }
+
+    private val keyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFFAFAFA.toInt()
+        style = Paint.Style.FILL
+    }
+
+    private val pressedKeyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFD6D6D6.toInt()
+        style = Paint.Style.FILL
+    }
+
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFF212121.toInt()
+        textAlign = Paint.Align.CENTER
+        style = Paint.Style.FILL
+    }
+
+    private val keyStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFCCCCCC.toInt()
+        style = Paint.Style.STROKE
+        strokeWidth = dp(1f)
     }
 
     init {
@@ -33,10 +58,6 @@ class KeyboardInputView @JvmOverloads constructor(
         isClickable = true
     }
 
-    /**
-     * Callback interface for keyboard actions.
-     * Implemented by KeyboardIMEService to handle key presses and text input.
-     */
     interface OnKeyboardActionListener {
         fun onKeyPress(keyCode: Int)
         fun onText(text: String)
@@ -45,50 +66,247 @@ class KeyboardInputView @JvmOverloads constructor(
         fun onEnter()
     }
 
-    /**
-     * Set the keyboard action listener.
-     * Called by KeyboardIMEService during onCreateInputView.
-     */
     fun setOnKeyboardActionListener(listener: OnKeyboardActionListener?) {
         onKeyboardActionListener = listener
     }
 
-    /**
-     * Clear view focus and refresh the display.
-     * Called when input view is being finished.
-     */
     fun clearFocusAndRefresh() {
         clearFocus()
+        pressedKeyIndex = -1
         invalidate()
     }
 
-    /**
-     * Reset keyboard state.
-     * Called when input view is restarted without changing the target field.
-     */
     fun resetState() {
+        shiftEnabled = false
+        pressedKeyIndex = -1
         invalidate()
     }
 
+    fun setKeyboardLayout(layout: KeyboardLayout) {
+        keyboardLayout = layout
+        shiftEnabled = false
+        pressedKeyIndex = -1
+        rebuildKeyBounds()
+        invalidate()
+    }
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val desiredHeight = dp(280f).toInt()
+
+        val height = when (MeasureSpec.getMode(heightMeasureSpec)) {
+            MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec)
+            MeasureSpec.AT_MOST -> minOf(desiredHeight, MeasureSpec.getSize(heightMeasureSpec))
+            else -> desiredHeight
+        }
+
+        setMeasuredDimension(width, max(dp(220f).toInt(), height))
+    }
+
+    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight)
+        rebuildKeyBounds()
+    }
+
+    private fun rebuildKeyBounds() {
+        keyBounds.clear()
+        keyReferences.clear()
+
+        if (width <= 0 || height <= 0 || keyboardLayout.rows.isEmpty()) {
+            return
+        }
+
+        val horizontalPadding = dp(4f)
+        val verticalPadding = dp(4f)
+        val keyGap = dp(4f)
+
+        val availableWidth = width.toFloat() - horizontalPadding * 2
+        val availableHeight = height.toFloat() - verticalPadding * 2
+
+        val rowCount = keyboardLayout.rows.size
+        val rowHeight = (availableHeight - keyGap * (rowCount - 1)) / rowCount
+
+        var top = verticalPadding
+
+        keyboardLayout.rows.forEach { row ->
+            val keyCount = row.keys.size
+            if (keyCount > 0) {
+                val keyWidth =
+                    (availableWidth - keyGap * (keyCount - 1)) / keyCount
+
+                var left = horizontalPadding
+
+                row.keys.forEach { key ->
+                    val rect = RectF(
+                        left,
+                        top,
+                        left + keyWidth,
+                        top + rowHeight
+                    )
+
+                    keyBounds.add(rect)
+                    keyReferences.add(key)
+
+                    left += keyWidth + keyGap
+                }
+            }
+
+            top += rowHeight + keyGap
+        }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        canvas.drawRect(
+            0f,
+            0f,
+            width.toFloat(),
+            height.toFloat(),
+            backgroundPaint
+        )
+
+        if (keyBounds.size != keyReferences.size) {
+            rebuildKeyBounds()
+        }
+
+        keyBounds.forEachIndexed { index, rect ->
+            val key = keyReferences[index]
+            val isPressed = index == pressedKeyIndex
+
+            canvas.drawRoundRect(
+                rect,
+                dp(6f),
+                dp(6f),
+                if (isPressed) pressedKeyPaint else keyPaint
+            )
+
+            canvas.drawRoundRect(
+                rect,
+                dp(6f),
+                dp(6f),
+                keyStrokePaint
+            )
+
+            val label = getDisplayLabel(key)
+
+            textPaint.textSize = when {
+                key.code == KeyEvent.KEYCODE_SPACE -> dp(14f)
+                label.length > 1 -> dp(17f)
+                else -> dp(20f)
+            }
+
+            val fontMetrics = textPaint.fontMetrics
+            val textCenterY =
+                rect.centerY() - (fontMetrics.ascent + fontMetrics.descent) / 2f
+
+            canvas.drawText(
+                label,
+                rect.centerX(),
+                textCenterY,
+                textPaint
+            )
+        }
+    }
+
+    private fun getDisplayLabel(key: Key): String {
+        if (key.code in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z) {
+            return if (shiftEnabled) {
+                key.label.uppercase()
+            } else {
+                key.label.lowercase()
+            }
+        }
+
+        return key.label
+    }
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                isPressed = true
+                pressedKeyIndex = findKeyAt(event.x, event.y)
+                invalidate()
+                return pressedKeyIndex >= 0
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                val newIndex = findKeyAt(event.x, event.y)
+
+                if (newIndex != pressedKeyIndex) {
+                    pressedKeyIndex = newIndex
+                    invalidate()
+                }
+
                 return true
             }
+
             MotionEvent.ACTION_UP -> {
-                isPressed = false
-                val x = event.x
-                when {
-                    x < width * 0.25f -> onKeyboardActionListener?.onDelete()
-                    x in (width * 0.25f)..(width * 0.75f) -> onKeyboardActionListener?.onSpace()
-                    else -> onKeyboardActionListener?.onEnter()
+                val releasedIndex = findKeyAt(event.x, event.y)
+                val pressedIndex = pressedKeyIndex
+
+                pressedKeyIndex = -1
+                invalidate()
+
+                if (pressedIndex >= 0 && pressedIndex == releasedIndex) {
+                    handleKey(keyReferences[pressedIndex])
                 }
+
                 performClick()
                 return true
             }
+
+            MotionEvent.ACTION_CANCEL -> {
+                pressedKeyIndex = -1
+                invalidate()
+                return true
+            }
         }
-        return super.onTouchEvent(event)
+
+        return true
+    }
+
+    private fun findKeyAt(x: Float, y: Float): Int {
+        for (index in keyBounds.indices) {
+            if (keyBounds[index].contains(x, y)) {
+                return index
+            }
+        }
+
+        return -1
+    }
+
+    private fun handleKey(key: Key) {
+        when (key.code) {
+            KeyEvent.KEYCODE_SHIFT_LEFT -> {
+                shiftEnabled = !shiftEnabled
+                invalidate()
+            }
+
+            KeyEvent.KEYCODE_DEL -> {
+                onKeyboardActionListener?.onDelete()
+            }
+
+            KeyEvent.KEYCODE_SPACE -> {
+                onKeyboardActionListener?.onSpace()
+            }
+
+            KeyEvent.KEYCODE_ENTER -> {
+                onKeyboardActionListener?.onEnter()
+            }
+
+            else -> {
+                val output = key.outputText ?: getDisplayLabel(key)
+
+                if (output.isNotEmpty()) {
+                    onKeyboardActionListener?.onText(output)
+
+                    if (shiftEnabled && key.code in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z) {
+                        shiftEnabled = false
+                        invalidate()
+                    }
+                } else {
+                    onKeyboardActionListener?.onKeyPress(key.code)
+                }
+            }
+        }
     }
 
     override fun performClick(): Boolean {
@@ -96,10 +314,7 @@ class KeyboardInputView @JvmOverloads constructor(
         return true
     }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        paint.textSize = 14f
-        paint.color = 0xFF666666.toInt()
-        canvas.drawText("Keyboard X IME Active", 16f, 30f, paint)
+    private fun dp(value: Float): Float {
+        return value * resources.displayMetrics.density
     }
 }
