@@ -104,7 +104,7 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val width = MeasureSpec.getSize(widthMeasure)
+        val width = MeasureSpec.getSize(widthMeasureSpec)
         val desiredHeight = dp(280f).toInt()
 
         val height = when (MeasureSpec.getMode(heightMeasureSpec)) {
