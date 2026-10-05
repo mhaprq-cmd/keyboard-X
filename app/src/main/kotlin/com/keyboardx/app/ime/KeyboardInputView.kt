@@ -194,7 +194,7 @@ class KeyboardInputView @JvmOverloads constructor(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
     ) {
-        val width = MeasureSpec.getSize(widthMeasure)
+        val width = MeasureSpec.getSize(widthMeasureSpec)
 
         val screenHeight = resources.displayMetrics.heightPixels.toFloat()
         val responsiveHeight = screenHeight * 0.36f
@@ -468,7 +468,7 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun getSymbolOutput(key: Key): String? {
         return symbolOutputByLabel[key.label]
     }
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
 
             MotionEvent.ACTION_DOWN -> {
