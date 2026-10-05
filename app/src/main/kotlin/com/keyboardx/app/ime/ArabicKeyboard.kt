@@ -22,9 +22,7 @@ object ArabicKeyboard {
             "ت",
             listOf("ٹ")
         ),
-        ArabicKeyDefinition(
-            "ث"
-        ),
+        ArabicKeyDefinition("ث"),
         ArabicKeyDefinition(
             "ج",
             listOf("چ")
@@ -33,18 +31,10 @@ object ArabicKeyboard {
             "ح",
             listOf("څ")
         ),
-        ArabicKeyDefinition(
-            "خ"
-        ),
-        ArabicKeyDefinition(
-            "د"
-        ),
-        ArabicKeyDefinition(
-            "ذ"
-        ),
-        ArabicKeyDefinition(
-            "ر"
-        ),
+        ArabicKeyDefinition("خ"),
+        ArabicKeyDefinition("د"),
+        ArabicKeyDefinition("ذ"),
+        ArabicKeyDefinition("ر"),
         ArabicKeyDefinition(
             "ز",
             listOf("ژ")
@@ -53,60 +43,44 @@ object ArabicKeyboard {
             "س",
             listOf("ڜ")
         ),
-        ArabicKeyDefinition(
-            "ش"
-        ),
-        ArabicKeyDefinition(
-            "ص"
-        ),
-        ArabicKeyDefinition(
-            "ض"
-        ),
-        ArabicKeyDefinition(
-            "ط"
-        ),
-        ArabicKeyDefinition(
-            "ظ"
-        ),
-        ArabicKeyDefinition(
-            "ع"
-        ),
-        ArabicKeyDefinition(
-            "غ"
-        ),
+        ArabicKeyDefinition("ش"),
+        ArabicKeyDefinition("ص"),
+        ArabicKeyDefinition("ض"),
+        ArabicKeyDefinition("ط"),
+        ArabicKeyDefinition("ظ"),
+        ArabicKeyDefinition("ع"),
+        ArabicKeyDefinition("غ"),
         ArabicKeyDefinition(
             "ف",
-            listOf("ڡ", "ڢ", "ڤ", "ڥ")
+            listOf("ڢ", "ڤ", "ڥ")
         ),
         ArabicKeyDefinition(
             "ق",
-            listOf("ٯ", "ڧ", "ڨ")
+            listOf("ڨ", "ڧ", "ٯ")
         ),
         ArabicKeyDefinition(
             "ك",
-            listOf("ک", "ګ", "گ")
+            listOf("ک", "گ")
         ),
-        ArabicKeyDefinition(
-            "ل"
-        ),
-        ArabicKeyDefinition(
-            "م"
-        ),
+        ArabicKeyDefinition("ل"),
+        ArabicKeyDefinition("م"),
         ArabicKeyDefinition(
             "ن",
             listOf("ں")
         ),
         ArabicKeyDefinition(
             "ه",
-            listOf("ه\u200D", "ھ")
+            listOf("ھ")
         ),
-        ArabicKeyDefinition(
-            "و",
-            listOf("ۆ", "ۋ")
-        ),
+        ArabicKeyDefinition("و"),
         ArabicKeyDefinition(
             "ي",
             listOf("ى", "ی")
+        ),
+        ArabicKeyDefinition("ة"),
+        ArabicKeyDefinition(
+            "ء",
+            listOf("ئ", "ؤ")
         )
     )
 
@@ -165,8 +139,8 @@ object ArabicKeyboard {
                         key("ر"),
                         key("و"),
                         key("ة"),
-                        key(""),
-                        key("ق")
+                        key("ء"),
+                        key("ئ")
                     )
                 ),
                 Row(
@@ -214,14 +188,6 @@ object ArabicKeyboard {
     }
 
     private fun key(character: String): Key {
-        if (character.isEmpty()) {
-            return Key(
-                KeyEvent.KEYCODE_UNKNOWN,
-                "",
-                ""
-            )
-        }
-
         return Key(
             KeyEvent.KEYCODE_UNKNOWN,
             character,
