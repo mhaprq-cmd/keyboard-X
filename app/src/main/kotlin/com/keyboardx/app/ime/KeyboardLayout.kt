@@ -300,12 +300,7 @@ object KeyboardLayoutProvider {
     }
 
     fun getArabicLayout(): KeyboardLayout {
-        return KeyboardLayout(
-            name = "Arabic",
-            rows = emptyList(),
-            language = KeyboardLayout.Language.ARABIC,
-            mode = KeyboardMode.ENGLISH
-        )
+        return ArabicKeyboard.getLayout()
     }
 
     fun getLayout(mode: KeyboardMode): KeyboardLayout {
