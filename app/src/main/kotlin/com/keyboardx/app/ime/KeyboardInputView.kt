@@ -36,6 +36,49 @@ class KeyboardInputView @JvmOverloads constructor(
     private var deletePressed = false
     private var deleteKeyIndex = -1
 
+    private var longPressPending = false
+    private var longPressTriggered = false
+    private var longPressKeyIndex = -1
+    private var longPressVariants = emptyList<String>()
+    private var selectedVariantIndex = 0
+
+    private val longPressHandler = Handler(Looper.getMainLooper())
+
+    private val longPressRunnable = object : Runnable {
+        override fun run() {
+            if (
+                pressedKeyIndex < 0 ||
+                pressedKeyIndex != longPressKeyIndex
+            ) {
+                return
+            }
+
+            val key = keyReferences.getOrNull(longPressKeyIndex)
+                ?: return
+
+            if (keyboardLayout.language != KeyboardLayout.Language.ARABIC) {
+                return
+            }
+
+            val character =
+                key.outputText ?: key.label
+
+            val variants =
+                ArabicKeyboard.getLongPressVariants(character)
+
+            if (variants.isEmpty()) {
+                return
+            }
+
+            longPressPending = false
+            longPressTriggered = true
+            longPressVariants = variants
+            selectedVariantIndex = 0
+
+            invalidate()
+        }
+    }
+
     private val deleteRepeatRunnable = object : Runnable {
         override fun run() {
             if (!deletePressed) {
@@ -74,6 +117,24 @@ class KeyboardInputView @JvmOverloads constructor(
         strokeWidth = dp(1f)
     }
 
+    private val variantBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFFFFFFF.toInt()
+        style = Paint.Style.FILL
+    }
+
+    private val variantSelectedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFD6D6D6.toInt()
+        style = Paint.Style.FILL
+    }
+
+    private val variantStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFFAAAAAA.toInt()
+        style = Paint.Style.STROKE
+        strokeWidth = dp(1f)
+    }
+
+    private val variantBounds = mutableListOf<RectF>()
+
     init {
         setBackgroundColor(0xFFE0E0E0.toInt())
         isFocusable = true
@@ -94,6 +155,7 @@ class KeyboardInputView @JvmOverloads constructor(
 
     fun clearFocusAndRefresh() {
         stopDeleteRepeat()
+        stopLongPress()
         clearFocus()
         pressedKeyIndex = -1
         invalidate()
@@ -101,15 +163,16 @@ class KeyboardInputView @JvmOverloads constructor(
 
     fun resetState() {
         stopDeleteRepeat()
+        stopLongPress()
         keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
         shiftEnabled = false
         pressedKeyIndex = -1
-        rebuildKeyBounds()
         invalidate()
     }
 
     fun setKeyboardLayout(layout: KeyboardLayout) {
         stopDeleteRepeat()
+        stopLongPress()
         keyboardLayout = layout
         shiftEnabled = false
         pressedKeyIndex = -1
@@ -131,7 +194,7 @@ class KeyboardInputView @JvmOverloads constructor(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
     ) {
-        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasure)
 
         val screenHeight = resources.displayMetrics.heightPixels.toFloat()
         val responsiveHeight = screenHeight * 0.36f
@@ -295,6 +358,96 @@ class KeyboardInputView @JvmOverloads constructor(
                 textPaint
             )
         }
+
+        drawLongPressVariants(canvas)
+    }
+
+    private fun drawLongPressVariants(canvas: Canvas) {
+        if (
+            !longPressTriggered ||
+            longPressKeyIndex !in keyBounds.indices ||
+            longPressVariants.isEmpty()
+        ) {
+            variantBounds.clear()
+            return
+        }
+
+        val keyRect = keyBounds[longPressKeyIndex]
+
+        val variantHeight = dp(58f)
+        val variantWidth = dp(54f)
+        val variantGap = dp(3f)
+        val popupPadding = dp(4f)
+
+        val totalWidth =
+            popupPadding * 2f +
+                variantWidth * longPressVariants.size +
+                variantGap * (longPressVariants.size - 1)
+
+        var popupLeft =
+            keyRect.centerX() - totalWidth / 2f
+
+        popupLeft = max(
+            dp(2f),
+            min(
+                popupLeft,
+                width.toFloat() - totalWidth - dp(2f)
+            )
+        )
+
+        val popupBottom =
+            keyRect.top - dp(4f)
+
+        val popupTop =
+            popupBottom - variantHeight
+
+        variantBounds.clear()
+
+        longPressVariants.forEachIndexed { index, variant ->
+            val rect = RectF(
+                popupLeft,
+                popupTop,
+                popupLeft + variantWidth,
+                popupBottom
+            )
+
+            variantBounds.add(rect)
+
+            canvas.drawRoundRect(
+                rect,
+                dp(7f),
+                dp(7f),
+                if (index == selectedVariantIndex) {
+                    variantSelectedPaint
+                } else {
+                    variantBackgroundPaint
+                }
+            )
+
+            canvas.drawRoundRect(
+                rect,
+                dp(7f),
+                dp(7f),
+                variantStrokePaint
+            )
+
+            textPaint.textSize = dp(22f)
+
+            val fontMetrics = textPaint.fontMetrics
+
+            val textCenterY =
+                rect.centerY() -
+                    (fontMetrics.ascent + fontMetrics.descent) / 2f
+
+            canvas.drawText(
+                variant,
+                rect.centerX(),
+                textCenterY,
+                textPaint
+            )
+
+            popupLeft += variantWidth + variantGap
+        }
     }
 
     private fun getDisplayLabel(key: Key): String {
@@ -315,7 +468,6 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun getSymbolOutput(key: Key): String? {
         return symbolOutputByLabel[key.label]
     }
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
 
@@ -330,6 +482,10 @@ class KeyboardInputView @JvmOverloads constructor(
                         startDeleteRepeat(
                             pressedKeyIndex
                         )
+                    } else {
+                        startLongPress(
+                            pressedKeyIndex
+                        )
                     }
                 }
 
@@ -339,6 +495,17 @@ class KeyboardInputView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_MOVE -> {
+                if (longPressTriggered) {
+                    updateVariantSelection(
+                        event.x,
+                        event.y
+                    )
+
+                    invalidate()
+
+                    return true
+                }
+
                 val newIndex =
                     findKeyAt(event.x, event.y)
 
@@ -346,6 +513,13 @@ class KeyboardInputView @JvmOverloads constructor(
                     if (newIndex != deleteKeyIndex) {
                         stopDeleteRepeat()
                     }
+                }
+
+                if (
+                    longPressPending &&
+                    newIndex != longPressKeyIndex
+                ) {
+                    stopLongPress()
                 }
 
                 if (newIndex != pressedKeyIndex) {
@@ -357,6 +531,20 @@ class KeyboardInputView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP -> {
+                if (longPressTriggered) {
+                    commitSelectedVariant()
+
+                    stopLongPress()
+                    stopDeleteRepeat()
+
+                    pressedKeyIndex = -1
+                    invalidate()
+
+                    performClick()
+
+                    return true
+                }
+
                 val releasedIndex =
                     findKeyAt(event.x, event.y)
 
@@ -366,6 +554,7 @@ class KeyboardInputView @JvmOverloads constructor(
                 val wasDeletePressed =
                     deletePressed
 
+                stopLongPress()
                 stopDeleteRepeat()
 
                 pressedKeyIndex = -1
@@ -394,6 +583,7 @@ class KeyboardInputView @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL -> {
                 stopDeleteRepeat()
+                stopLongPress()
 
                 pressedKeyIndex = -1
                 invalidate()
@@ -403,6 +593,113 @@ class KeyboardInputView @JvmOverloads constructor(
         }
 
         return true
+    }
+
+    private fun startLongPress(index: Int) {
+        stopLongPress()
+
+        if (keyboardLayout.language != KeyboardLayout.Language.ARABIC) {
+            return
+        }
+
+        val key = keyReferences.getOrNull(index)
+            ?: return
+
+        val character =
+            key.outputText ?: key.label
+
+        if (
+            !ArabicKeyboard.hasLongPressVariants(
+                character
+            )
+        ) {
+            return
+        }
+
+        longPressPending = true
+        longPressTriggered = false
+        longPressKeyIndex = index
+        longPressVariants = emptyList()
+        selectedVariantIndex = 0
+
+        longPressHandler.postDelayed(
+            longPressRunnable,
+            450L
+        )
+    }
+
+    private fun stopLongPress() {
+        longPressPending = false
+        longPressTriggered = false
+        longPressKeyIndex = -1
+        longPressVariants = emptyList()
+        selectedVariantIndex = 0
+
+        longPressHandler.removeCallbacks(
+            longPressRunnable
+        )
+
+        variantBounds.clear()
+    }
+
+    private fun updateVariantSelection(
+        x: Float,
+        y: Float
+    ) {
+        if (variantBounds.isEmpty()) {
+            return
+        }
+
+        val index = variantBounds.indexOfFirst {
+            it.contains(x, y)
+        }
+
+        if (index >= 0) {
+            selectedVariantIndex = index
+            return
+        }
+
+        val nearestIndex =
+            variantBounds.indices.minByOrNull { index ->
+                val rect = variantBounds[index]
+
+                val dx =
+                    if (x < rect.left) {
+                        rect.left - x
+                    } else if (x > rect.right) {
+                        x - rect.right
+                    } else {
+                        0f
+                    }
+
+                val dy =
+                    if (y < rect.top) {
+                        rect.top - y
+                    } else if (y > rect.bottom) {
+                        y - rect.bottom
+                    } else {
+                        0f
+                    }
+
+                dx * dx + dy * dy
+            }
+
+        if (nearestIndex != null) {
+            selectedVariantIndex = nearestIndex
+        }
+    }
+
+    private fun commitSelectedVariant() {
+        val variant =
+            longPressVariants.getOrNull(
+                selectedVariantIndex
+            ) ?: return
+
+        if (variant.isNotEmpty()) {
+            onKeyboardActionListener?.onText(
+                variant
+            )
+        }
     }
 
     private fun startDeleteRepeat(index: Int) {
