@@ -4,11 +4,14 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.max
+import kotlin.math.min
 
 class KeyboardInputView @JvmOverloads constructor(
     context: Context,
@@ -27,6 +30,22 @@ class KeyboardInputView @JvmOverloads constructor(
 
     private val symbolOutputByLabel: Map<String, String> =
         KeyboardSymbols.all.associate { it.label to it.outputText }
+
+    private val deleteHandler = Handler(Looper.getMainLooper())
+
+    private var deletePressed = false
+    private var deleteKeyIndex = -1
+
+    private val deleteRepeatRunnable = object : Runnable {
+        override fun run() {
+            if (!deletePressed) {
+                return
+            }
+
+            onKeyboardActionListener?.onDelete()
+            deleteHandler.postDelayed(this, 65L)
+        }
+    }
 
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xFFE0E0E0.toInt()
@@ -74,18 +93,23 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     fun clearFocusAndRefresh() {
+        stopDeleteRepeat()
         clearFocus()
         pressedKeyIndex = -1
         invalidate()
     }
 
     fun resetState() {
+        stopDeleteRepeat()
+        keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
         shiftEnabled = false
         pressedKeyIndex = -1
+        rebuildKeyBounds()
         invalidate()
     }
 
     fun setKeyboardLayout(layout: KeyboardLayout) {
+        stopDeleteRepeat()
         keyboardLayout = layout
         shiftEnabled = false
         pressedKeyIndex = -1
@@ -103,20 +127,35 @@ class KeyboardInputView @JvmOverloads constructor(
         }
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    override fun onMeasure(
+        widthMeasureSpec: Int,
+        heightMeasureSpec: Int
+    ) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
-        val desiredHeight = dp(280f).toInt()
 
-        val height = when (MeasureSpec.getMode(heightMeasureSpec)) {
-            MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec)
-            MeasureSpec.AT_MOST -> minOf(
-                desiredHeight,
-                MeasureSpec.getSize(heightMeasureSpec)
-            )
-            else -> desiredHeight
+        val screenHeight = resources.displayMetrics.heightPixels.toFloat()
+        val responsiveHeight = screenHeight * 0.36f
+
+        val targetHeight = min(
+            dp(245f),
+            responsiveHeight
+        ).toInt()
+
+        val minimumHeight = dp(200f).toInt()
+
+        val availableHeight = when (MeasureSpec.getMode(heightMeasureSpec)) {
+            MeasureSpec.EXACTLY,
+            MeasureSpec.AT_MOST -> MeasureSpec.getSize(heightMeasureSpec)
+
+            else -> targetHeight
         }
 
-        setMeasuredDimension(width, max(dp(220f).toInt(), height))
+        val height = max(
+            minimumHeight,
+            min(targetHeight, availableHeight)
+        )
+
+        setMeasuredDimension(width, height)
     }
 
     override fun onSizeChanged(
@@ -125,7 +164,13 @@ class KeyboardInputView @JvmOverloads constructor(
         oldWidth: Int,
         oldHeight: Int
     ) {
-        super.onSizeChanged(width, height, oldWidth, oldHeight)
+        super.onSizeChanged(
+            width,
+            height,
+            oldWidth,
+            oldHeight
+        )
+
         rebuildKeyBounds()
     }
 
@@ -133,18 +178,26 @@ class KeyboardInputView @JvmOverloads constructor(
         keyBounds.clear()
         keyReferences.clear()
 
-        if (width <= 0 || height <= 0 || keyboardLayout.rows.isEmpty()) {
+        if (
+            width <= 0 ||
+            height <= 0 ||
+            keyboardLayout.rows.isEmpty()
+        ) {
             return
         }
 
         val horizontalPadding = dp(4f)
         val verticalPadding = dp(4f)
-        val keyGap = dp(4f)
+        val keyGap = dp(3f)
 
-        val availableWidth = width.toFloat() - horizontalPadding * 2
-        val availableHeight = height.toFloat() - verticalPadding * 2
+        val availableWidth =
+            width.toFloat() - horizontalPadding * 2f
+
+        val availableHeight =
+            height.toFloat() - verticalPadding * 2f
 
         val rowCount = keyboardLayout.rows.size
+
         val rowHeight =
             (availableHeight - keyGap * (rowCount - 1)) / rowCount
 
@@ -155,7 +208,8 @@ class KeyboardInputView @JvmOverloads constructor(
 
             if (keyCount > 0) {
                 val keyWidth =
-                    (availableWidth - keyGap * (keyCount - 1)) / keyCount
+                    (availableWidth - keyGap * (keyCount - 1)) /
+                        keyCount
 
                 var left = horizontalPadding
 
@@ -201,7 +255,11 @@ class KeyboardInputView @JvmOverloads constructor(
                 rect,
                 dp(6f),
                 dp(6f),
-                if (isPressed) pressedKeyPaint else keyPaint
+                if (isPressed) {
+                    pressedKeyPaint
+                } else {
+                    keyPaint
+                }
             )
 
             canvas.drawRoundRect(
@@ -214,12 +272,18 @@ class KeyboardInputView @JvmOverloads constructor(
             val label = getDisplayLabel(key)
 
             textPaint.textSize = when {
-                key.code == KeyEvent.KEYCODE_SPACE -> dp(14f)
+                key.action != KeyAction.NONE &&
+                    label.length > 2 -> dp(14f)
+
+                key.code == KeyEvent.KEYCODE_SPACE -> dp(13f)
+
                 label.length > 1 -> dp(17f)
+
                 else -> dp(20f)
             }
 
             val fontMetrics = textPaint.fontMetrics
+
             val textCenterY =
                 rect.centerY() -
                     (fontMetrics.ascent + fontMetrics.descent) / 2f
@@ -234,7 +298,10 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     private fun getDisplayLabel(key: Key): String {
-        if (key.code in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z) {
+        if (
+            key.code in
+            KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z
+        ) {
             return if (shiftEnabled) {
                 key.label.uppercase()
             } else {
@@ -251,14 +318,35 @@ class KeyboardInputView @JvmOverloads constructor(
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
+
             MotionEvent.ACTION_DOWN -> {
-                pressedKeyIndex = findKeyAt(event.x, event.y)
+                pressedKeyIndex =
+                    findKeyAt(event.x, event.y)
+
+                if (pressedKeyIndex >= 0) {
+                    val key = keyReferences[pressedKeyIndex]
+
+                    if (key.action == KeyAction.DELETE) {
+                        startDeleteRepeat(
+                            pressedKeyIndex
+                        )
+                    }
+                }
+
                 invalidate()
+
                 return pressedKeyIndex >= 0
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val newIndex = findKeyAt(event.x, event.y)
+                val newIndex =
+                    findKeyAt(event.x, event.y)
+
+                if (deletePressed) {
+                    if (newIndex != deleteKeyIndex) {
+                        stopDeleteRepeat()
+                    }
+                }
 
                 if (newIndex != pressedKeyIndex) {
                     pressedKeyIndex = newIndex
@@ -269,8 +357,16 @@ class KeyboardInputView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP -> {
-                val releasedIndex = findKeyAt(event.x, event.y)
-                val pressedIndex = pressedKeyIndex
+                val releasedIndex =
+                    findKeyAt(event.x, event.y)
+
+                val pressedIndex =
+                    pressedKeyIndex
+
+                val wasDeletePressed =
+                    deletePressed
+
+                stopDeleteRepeat()
 
                 pressedKeyIndex = -1
                 invalidate()
@@ -279,16 +375,29 @@ class KeyboardInputView @JvmOverloads constructor(
                     pressedIndex >= 0 &&
                     pressedIndex == releasedIndex
                 ) {
-                    handleKey(keyReferences[pressedIndex])
+                    val key =
+                        keyReferences[pressedIndex]
+
+                    if (
+                        key.action !=
+                        KeyAction.DELETE ||
+                        !wasDeletePressed
+                    ) {
+                        handleKey(key)
+                    }
                 }
 
                 performClick()
+
                 return true
             }
 
             MotionEvent.ACTION_CANCEL -> {
+                stopDeleteRepeat()
+
                 pressedKeyIndex = -1
                 invalidate()
+
                 return true
             }
         }
@@ -296,7 +405,33 @@ class KeyboardInputView @JvmOverloads constructor(
         return true
     }
 
-    private fun findKeyAt(x: Float, y: Float): Int {
+    private fun startDeleteRepeat(index: Int) {
+        stopDeleteRepeat()
+
+        deletePressed = true
+        deleteKeyIndex = index
+
+        onKeyboardActionListener?.onDelete()
+
+        deleteHandler.postDelayed(
+            deleteRepeatRunnable,
+            350L
+        )
+    }
+
+    private fun stopDeleteRepeat() {
+        deletePressed = false
+        deleteKeyIndex = -1
+
+        deleteHandler.removeCallbacks(
+            deleteRepeatRunnable
+        )
+    }
+
+    private fun findKeyAt(
+        x: Float,
+        y: Float
+    ): Int {
         for (index in keyBounds.indices) {
             if (keyBounds[index].contains(x, y)) {
                 return index
@@ -307,42 +442,77 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     private fun handleKey(key: Key) {
-        when (key.code) {
-            KeyEvent.KEYCODE_SHIFT_LEFT -> {
+        when (key.action) {
+
+            KeyAction.SHIFT -> {
                 shiftEnabled = !shiftEnabled
                 invalidate()
             }
 
-            KeyEvent.KEYCODE_DEL -> {
+            KeyAction.DELETE -> {
                 onKeyboardActionListener?.onDelete()
             }
 
-            KeyEvent.KEYCODE_SPACE -> {
+            KeyAction.SPACE -> {
                 onKeyboardActionListener?.onSpace()
             }
 
-            KeyEvent.KEYCODE_ENTER -> {
+            KeyAction.ENTER -> {
                 onKeyboardActionListener?.onEnter()
             }
 
-            else -> {
+            KeyAction.SWITCH_TO_ENGLISH -> {
+                setKeyboardLayout(
+                    KeyboardLayoutProvider
+                        .getEnglishLayout()
+                )
+            }
+
+            KeyAction.SWITCH_TO_NUMBERS -> {
+                setKeyboardLayout(
+                    KeyboardLayoutProvider
+                        .getNumbersLayout()
+                )
+            }
+
+            KeyAction.SWITCH_TO_SYMBOLS -> {
+                setKeyboardLayout(
+                    KeyboardLayoutProvider
+                        .getSymbolsLayout()
+                )
+            }
+
+            KeyAction.SWITCH_LANGUAGE -> {
+                setKeyboardLayout(
+                    KeyboardLayoutProvider
+                        .getEnglishLayout()
+                )
+            }
+
+            KeyAction.NONE -> {
                 val output =
                     key.outputText
                         ?: getSymbolOutput(key)
                         ?: getDisplayLabel(key)
 
                 if (output.isNotEmpty()) {
-                    onKeyboardActionListener?.onText(output)
+                    onKeyboardActionListener?.onText(
+                        output
+                    )
 
                     if (
                         shiftEnabled &&
-                        key.code in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z
+                        key.code in
+                        KeyEvent.KEYCODE_A..
+                        KeyEvent.KEYCODE_Z
                     ) {
                         shiftEnabled = false
                         invalidate()
                     }
                 } else {
-                    onKeyboardActionListener?.onKeyPress(key.code)
+                    onKeyboardActionListener?.onKeyPress(
+                        key.code
+                    )
                 }
             }
         }
@@ -354,6 +524,7 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     private fun dp(value: Float): Float {
-        return value * resources.displayMetrics.density
+        return value *
+            resources.displayMetrics.density
     }
 }
