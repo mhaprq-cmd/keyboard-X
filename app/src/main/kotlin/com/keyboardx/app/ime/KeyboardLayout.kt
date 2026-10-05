@@ -157,7 +157,7 @@ object KeyboardLayoutProvider {
                 ),
                 Row(
                     listOf(
-                        Key(KeyEvent.KEYCODE_PERCENT, "%"),
+                        Key(KeyEvent.KEYCODE_UNKNOWN, "%", "%"),
                         Key(KeyEvent.KEYCODE_PLUS, "+"),
                         Key(KeyEvent.KEYCODE_MINUS, "-"),
                         Key(KeyEvent.KEYCODE_STAR, "*"),
@@ -174,8 +174,8 @@ object KeyboardLayoutProvider {
                             "#+=",
                             action = KeyAction.SWITCH_TO_SYMBOLS
                         ),
-                        Key(KeyEvent.KEYCODE_LEFT_PAREN, "("),
-                        Key(KeyEvent.KEYCODE_RIGHT_PAREN, ")"),
+                        Key(KeyEvent.KEYCODE_UNKNOWN, "(", "("),
+                        Key(KeyEvent.KEYCODE_UNKNOWN, ")", ")"),
                         Key(KeyEvent.KEYCODE_LEFT_BRACKET, "["),
                         Key(KeyEvent.KEYCODE_RIGHT_BRACKET, "]"),
                         Key(
