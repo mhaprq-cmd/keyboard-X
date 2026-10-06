@@ -22,6 +22,7 @@ class KeyboardInputView @JvmOverloads constructor(
     private var onKeyboardActionListener: OnKeyboardActionListener? = null
 
     private var keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
+    private var activeLanguage = KeyboardLayout.Language.ENGLISH
     private var shiftEnabled = false
     private var pressedKeyIndex = -1
 
@@ -165,6 +166,7 @@ class KeyboardInputView @JvmOverloads constructor(
         stopDeleteRepeat()
         stopLongPress()
         keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
+        activeLanguage = KeyboardLayout.Language.ENGLISH
         shiftEnabled = false
         pressedKeyIndex = -1
         invalidate()
@@ -173,7 +175,13 @@ class KeyboardInputView @JvmOverloads constructor(
     fun setKeyboardLayout(layout: KeyboardLayout) {
         stopDeleteRepeat()
         stopLongPress()
+
         keyboardLayout = layout
+
+        if (layout.mode == KeyboardMode.ENGLISH) {
+            activeLanguage = layout.language
+        }
+
         shiftEnabled = false
         pressedKeyIndex = -1
         rebuildKeyBounds()
@@ -468,7 +476,7 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun getSymbolOutput(key: Key): String? {
         return symbolOutputByLabel[key.label]
     }
-override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
 
             MotionEvent.ACTION_DOWN -> {
@@ -759,6 +767,7 @@ override fun onTouchEvent(event: MotionEvent): Boolean {
             }
 
             KeyAction.SWITCH_TO_ENGLISH -> {
+                activeLanguage = KeyboardLayout.Language.ENGLISH
                 setKeyboardLayout(
                     KeyboardLayoutProvider
                         .getEnglishLayout()
@@ -780,10 +789,30 @@ override fun onTouchEvent(event: MotionEvent): Boolean {
             }
 
             KeyAction.SWITCH_LANGUAGE -> {
-                setKeyboardLayout(
-                    KeyboardLayoutProvider
-                        .getEnglishLayout()
-                )
+                activeLanguage =
+                    if (
+                        activeLanguage ==
+                        KeyboardLayout.Language.ENGLISH
+                    ) {
+                        KeyboardLayout.Language.ARABIC
+                    } else {
+                        KeyboardLayout.Language.ENGLISH
+                    }
+
+                if (
+                    activeLanguage ==
+                    KeyboardLayout.Language.ARABIC
+                ) {
+                    setKeyboardLayout(
+                        KeyboardLayoutProvider
+                            .getArabicLayout()
+                    )
+                } else {
+                    setKeyboardLayout(
+                        KeyboardLayoutProvider
+                            .getEnglishLayout()
+                    )
+                }
             }
 
             KeyAction.NONE -> {
