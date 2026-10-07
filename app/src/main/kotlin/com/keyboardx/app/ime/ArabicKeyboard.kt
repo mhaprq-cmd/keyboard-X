@@ -10,78 +10,36 @@ data class ArabicKeyDefinition(
 object ArabicKeyboard {
 
     val keys: List<ArabicKeyDefinition> = listOf(
-        ArabicKeyDefinition(
-            "ا",
-            listOf("أ", "إ", "آ", "ٱ")
-        ),
-        ArabicKeyDefinition(
-            "ب",
-            listOf("پ")
-        ),
-        ArabicKeyDefinition(
-            "ت",
-            listOf("ٹ")
-        ),
-        ArabicKeyDefinition("ث"),
-        ArabicKeyDefinition(
-            "ج",
-            listOf("چ")
-        ),
-        ArabicKeyDefinition(
-            "ح",
-            listOf("څ")
-        ),
+        ArabicKeyDefinition("ج", listOf("چ")),
+        ArabicKeyDefinition("ح"),
         ArabicKeyDefinition("خ"),
-        ArabicKeyDefinition("د"),
-        ArabicKeyDefinition("ذ"),
-        ArabicKeyDefinition("ر"),
-        ArabicKeyDefinition(
-            "ز",
-            listOf("ژ")
-        ),
-        ArabicKeyDefinition(
-            "س",
-            listOf("ڜ")
-        ),
-        ArabicKeyDefinition("ش"),
+        ArabicKeyDefinition("ه"),
+        ArabicKeyDefinition("ع"),
+        ArabicKeyDefinition("غ"),
+        ArabicKeyDefinition("ف", listOf("ڢ", "ڤ", "ڥ")),
+        ArabicKeyDefinition("ق", listOf("ڧ", "ڨ", "ٯ")),
+        ArabicKeyDefinition("ث"),
         ArabicKeyDefinition("ص"),
         ArabicKeyDefinition("ض"),
         ArabicKeyDefinition("ط"),
-        ArabicKeyDefinition("ظ"),
-        ArabicKeyDefinition("ع"),
-        ArabicKeyDefinition("غ"),
-        ArabicKeyDefinition(
-            "ف",
-            listOf("ڢ", "ڤ", "ڥ")
-        ),
-        ArabicKeyDefinition(
-            "ق",
-            listOf("ڨ", "ڧ", "ٯ")
-        ),
-        ArabicKeyDefinition(
-            "ك",
-            listOf("ک", "گ")
-        ),
-        ArabicKeyDefinition("ل"),
+        ArabicKeyDefinition("ك", listOf("ک", "گ")),
         ArabicKeyDefinition("م"),
-        ArabicKeyDefinition(
-            "ن",
-            listOf("ں")
-        ),
-        ArabicKeyDefinition(
-            "ه",
-            listOf("ھ")
-        ),
-        ArabicKeyDefinition("و"),
-        ArabicKeyDefinition(
-            "ي",
-            listOf("ئ", "ى", "ی")
-        ),
+        ArabicKeyDefinition("ن"),
+        ArabicKeyDefinition("ت"),
+        ArabicKeyDefinition("ا", listOf("أ", "إ", "آ", "ٱ", "ء")),
+        ArabicKeyDefinition("ل"),
+        ArabicKeyDefinition("ب", listOf("پ")),
+        ArabicKeyDefinition("ي", listOf("ئ", "ى", "ی")),
+        ArabicKeyDefinition("س", listOf("ڜ")),
+        ArabicKeyDefinition("ش"),
+        ArabicKeyDefinition("د"),
+        ArabicKeyDefinition("ظ"),
+        ArabicKeyDefinition("ز", listOf("ژ")),
+        ArabicKeyDefinition("و", listOf("ؤ")),
         ArabicKeyDefinition("ة"),
-        ArabicKeyDefinition(
-            "ء",
-            listOf("ئ", "ؤ")
-        )
+        ArabicKeyDefinition("ى"),
+        ArabicKeyDefinition("ر"),
+        ArabicKeyDefinition("ء")
     )
 
     private val variantsByCharacter: Map<String, List<String>> =
@@ -140,8 +98,8 @@ object ArabicKeyboard {
                         key("ر"),
                         key("و"),
                         key("ة"),
-                        key("ء"),
-                        key("ئ")
+                        key("ى"),
+                        key("ء")
                     )
                 ),
                 Row(
