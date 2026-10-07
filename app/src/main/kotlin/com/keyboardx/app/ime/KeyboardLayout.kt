@@ -135,9 +135,9 @@ object KeyboardLayoutProvider {
         )
     }
 
-    fun getNumbersLayout(): KeyboardLayout {
+    fun getEnglishNumbersLayout(): KeyboardLayout {
         return KeyboardLayout(
-            name = "Numbers",
+            name = "English Numbers",
             language = KeyboardLayout.Language.ENGLISH,
             mode = KeyboardMode.NUMBERS,
             rows = listOf(
@@ -214,9 +214,9 @@ object KeyboardLayoutProvider {
         )
     }
 
-    fun getSymbolsLayout(): KeyboardLayout {
+    fun getEnglishSymbolsLayout(): KeyboardLayout {
         return KeyboardLayout(
-            name = "Symbols",
+            name = "English Symbols",
             language = KeyboardLayout.Language.ENGLISH,
             mode = KeyboardMode.SYMBOLS,
             rows = listOf(
@@ -303,11 +303,46 @@ object KeyboardLayoutProvider {
         return ArabicKeyboard.getLayout()
     }
 
-    fun getLayout(mode: KeyboardMode): KeyboardLayout {
+    fun getNumbersLayout(
+        language: Language = Language.ENGLISH
+    ): KeyboardLayout {
+        return if (language == Language.ARABIC) {
+            ArabicSymbols.getNumbersLayout()
+        } else {
+            getEnglishNumbersLayout()
+        }
+    }
+
+    fun getSymbolsLayout(
+        language: Language = Language.ENGLISH
+    ): KeyboardLayout {
+        return if (language == Language.ARABIC) {
+            ArabicSymbols.getSymbolsLayout()
+        } else {
+            getEnglishSymbolsLayout()
+        }
+    }
+
+    fun getLayout(
+        mode: KeyboardMode,
+        language: Language = Language.ENGLISH
+    ): KeyboardLayout {
         return when (mode) {
-            KeyboardMode.ENGLISH -> getEnglishLayout()
-            KeyboardMode.NUMBERS -> getNumbersLayout()
-            KeyboardMode.SYMBOLS -> getSymbolsLayout()
+            KeyboardMode.ENGLISH -> {
+                if (language == Language.ARABIC) {
+                    getArabicLayout()
+                } else {
+                    getEnglishLayout()
+                }
+            }
+
+            KeyboardMode.NUMBERS -> {
+                getNumbersLayout(language)
+            }
+
+            KeyboardMode.SYMBOLS -> {
+                getSymbolsLayout(language)
+            }
         }
     }
 }
