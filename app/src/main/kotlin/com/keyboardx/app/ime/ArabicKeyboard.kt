@@ -75,7 +75,7 @@ object ArabicKeyboard {
         ArabicKeyDefinition("و"),
         ArabicKeyDefinition(
             "ي",
-            listOf("ى", "ی")
+            listOf("ئ", "ى", "ی")
         ),
         ArabicKeyDefinition("ة"),
         ArabicKeyDefinition(
@@ -112,7 +112,8 @@ object ArabicKeyboard {
                         key("ع"),
                         key("ه"),
                         key("خ"),
-                        key("ح")
+                        key("ح"),
+                        key("ج")
                     )
                 ),
                 Row(
@@ -147,7 +148,7 @@ object ArabicKeyboard {
                     listOf(
                         Key(
                             KeyEvent.KEYCODE_UNKNOWN,
-                            "123",
+                            "١٢٣",
                             action = KeyAction.SWITCH_TO_NUMBERS
                         ),
                         Key(
@@ -162,7 +163,7 @@ object ArabicKeyboard {
                         ),
                         Key(
                             KeyEvent.KEYCODE_SPACE,
-                            "Space",
+                            "",
                             " ",
                             KeyAction.SPACE
                         ),
@@ -172,14 +173,14 @@ object ArabicKeyboard {
                             "؛"
                         ),
                         Key(
+                            KeyEvent.KEYCODE_DEL,
+                            "⌫",
+                            action = KeyAction.DELETE
+                        ),
+                        Key(
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
-                        ),
-                        Key(
-                            KeyEvent.KEYCODE_UNKNOWN,
-                            "#+=",
-                            action = KeyAction.SWITCH_TO_SYMBOLS
                         )
                     )
                 )
