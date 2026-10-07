@@ -26,6 +26,9 @@ class KeyboardInputView @JvmOverloads constructor(
     private var shiftEnabled = false
     private var pressedKeyIndex = -1
 
+    private val preferences =
+        context.getSharedPreferences("keyboard_x_preferences", Context.MODE_PRIVATE)
+
     private val keyBounds = mutableListOf<RectF>()
     private val keyReferences = mutableListOf<Key>()
 
@@ -137,6 +140,14 @@ class KeyboardInputView @JvmOverloads constructor(
     private val variantBounds = mutableListOf<RectF>()
 
     init {
+        activeLanguage = loadPreferredLanguage()
+        keyboardLayout =
+            if (activeLanguage == KeyboardLayout.Language.ARABIC) {
+                KeyboardLayoutProvider.getArabicLayout()
+            } else {
+                KeyboardLayoutProvider.getEnglishLayout()
+            }
+
         setBackgroundColor(0xFFE0E0E0.toInt())
         isFocusable = true
         isClickable = true
@@ -165,10 +176,18 @@ class KeyboardInputView @JvmOverloads constructor(
     fun resetState() {
         stopDeleteRepeat()
         stopLongPress()
-        keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
-        activeLanguage = KeyboardLayout.Language.ENGLISH
+
+        keyboardLayout =
+            if (activeLanguage == KeyboardLayout.Language.ARABIC) {
+                KeyboardLayoutProvider.getArabicLayout()
+            } else {
+                KeyboardLayoutProvider.getEnglishLayout()
+            }
+
         shiftEnabled = false
         pressedKeyIndex = -1
+
+        rebuildKeyBounds()
         invalidate()
     }
 
@@ -180,10 +199,12 @@ class KeyboardInputView @JvmOverloads constructor(
 
         if (layout.mode == KeyboardMode.ENGLISH) {
             activeLanguage = layout.language
+            savePreferredLanguage(activeLanguage)
         }
 
         shiftEnabled = false
         pressedKeyIndex = -1
+
         rebuildKeyBounds()
         invalidate()
     }
@@ -202,17 +223,17 @@ class KeyboardInputView @JvmOverloads constructor(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
     ) {
-        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasure)
 
         val screenHeight = resources.displayMetrics.heightPixels.toFloat()
-        val responsiveHeight = screenHeight * 0.36f
+        val responsiveHeight = screenHeight * 0.33f
 
         val targetHeight = min(
-            dp(245f),
+            dp(225f),
             responsiveHeight
         ).toInt()
 
-        val minimumHeight = dp(200f).toInt()
+        val minimumHeight = dp(180f).toInt()
 
         val availableHeight = when (MeasureSpec.getMode(heightMeasureSpec)) {
             MeasureSpec.EXACTLY,
@@ -359,12 +380,14 @@ class KeyboardInputView @JvmOverloads constructor(
                 rect.centerY() -
                     (fontMetrics.ascent + fontMetrics.descent) / 2f
 
-            canvas.drawText(
-                label,
-                rect.centerX(),
-                textCenterY,
-                textPaint
-            )
+            if (label.isNotEmpty()) {
+                canvas.drawText(
+                    label,
+                    rect.centerX(),
+                    textCenterY,
+                    textPaint
+                )
+            }
         }
 
         drawLongPressVariants(canvas)
@@ -457,8 +480,11 @@ class KeyboardInputView @JvmOverloads constructor(
             popupLeft += variantWidth + variantGap
         }
     }
-
     private fun getDisplayLabel(key: Key): String {
+        if (key.action == KeyAction.SPACE) {
+            return ""
+        }
+
         if (
             key.code in
             KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z
@@ -476,6 +502,7 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun getSymbolOutput(key: Key): String? {
         return symbolOutputByLabel[key.label]
     }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
 
@@ -767,10 +794,15 @@ class KeyboardInputView @JvmOverloads constructor(
             }
 
             KeyAction.SWITCH_TO_ENGLISH -> {
-                activeLanguage = KeyboardLayout.Language.ENGLISH
                 setKeyboardLayout(
-                    KeyboardLayoutProvider
-                        .getEnglishLayout()
+                    if (
+                        activeLanguage ==
+                        KeyboardLayout.Language.ARABIC
+                    ) {
+                        KeyboardLayoutProvider.getArabicLayout()
+                    } else {
+                        KeyboardLayoutProvider.getEnglishLayout()
+                    }
                 )
             }
 
@@ -798,6 +830,8 @@ class KeyboardInputView @JvmOverloads constructor(
                     } else {
                         KeyboardLayout.Language.ENGLISH
                     }
+
+                savePreferredLanguage(activeLanguage)
 
                 if (
                     activeLanguage ==
@@ -842,6 +876,34 @@ class KeyboardInputView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    private fun loadPreferredLanguage(): KeyboardLayout.Language {
+        val savedLanguage =
+            preferences.getString(
+                "active_language",
+                KeyboardLayout.Language.ENGLISH.name
+            )
+
+        return if (
+            savedLanguage ==
+            KeyboardLayout.Language.ARABIC.name
+        ) {
+            KeyboardLayout.Language.ARABIC
+        } else {
+            KeyboardLayout.Language.ENGLISH
+        }
+    }
+
+    private fun savePreferredLanguage(
+        language: KeyboardLayout.Language
+    ) {
+        preferences.edit()
+            .putString(
+                "active_language",
+                language.name
+            )
+            .apply()
     }
 
     override fun performClick(): Boolean {
