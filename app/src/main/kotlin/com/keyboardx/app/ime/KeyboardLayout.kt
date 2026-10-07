@@ -304,42 +304,34 @@ object KeyboardLayoutProvider {
     }
 
     fun getNumbersLayout(
-        fun getNumbersLayout(
-    language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
-): KeyboardLayout {
-    return if (language == KeyboardLayout.Language.ARABIC) {
-        ArabicSymbols.getNumbersLayout()
-    } else {
-        getEnglishNumbersLayout()
-    }
-}
-
-fun getSymbolsLayout(
-    language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
-): KeyboardLayout {
-    return if (language == KeyboardLayout.Language.ARABIC) {
-        ArabicSymbols.getSymbolsLayout()
-    } else {
-        getEnglishSymbolsLayout()
-    }
-}
-
-fun getLayout(
-    mode: KeyboardMode,
-    language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
-): KeyboardLayout {
-    return when (mode) {
-        KeyboardMode.ENGLISH -> {
-            if (language == KeyboardLayout.Language.ARABIC) {
-                getArabicLayout()
-            } else {
-                getEnglishLayout()
-            }
+        language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
+    ): KeyboardLayout {
+        return if (language == KeyboardLayout.Language.ARABIC) {
+            ArabicSymbols.getNumbersLayout()
+        } else {
+            getEnglishNumbersLayout()
         }
-        KeyboardMode.NUMBERS -> getNumbersLayout(language)
-        KeyboardMode.SYMBOLS -> getSymbolsLayout(language)
     }
-}
+
+    fun getSymbolsLayout(
+        language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
+    ): KeyboardLayout {
+        return if (language == KeyboardLayout.Language.ARABIC) {
+            ArabicSymbols.getSymbolsLayout()
+        } else {
+            getEnglishSymbolsLayout()
+        }
+    }
+
+    fun getLayout(
+        mode: KeyboardMode,
+        language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
+    ): KeyboardLayout {
+        return when (mode) {
+            KeyboardMode.ENGLISH -> {
+                if (language == KeyboardLayout.Language.ARABIC) {
+                    getArabicLayout()
+                } else {
                     getEnglishLayout()
                 }
             }
