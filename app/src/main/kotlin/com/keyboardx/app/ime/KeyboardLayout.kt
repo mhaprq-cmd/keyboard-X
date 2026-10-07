@@ -304,34 +304,42 @@ object KeyboardLayoutProvider {
     }
 
     fun getNumbersLayout(
-        language: Language = Language.ENGLISH
-    ): KeyboardLayout {
-        return if (language == Language.ARABIC) {
-            ArabicSymbols.getNumbersLayout()
-        } else {
-            getEnglishNumbersLayout()
-        }
+        fun getNumbersLayout(
+    language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
+): KeyboardLayout {
+    return if (language == KeyboardLayout.Language.ARABIC) {
+        ArabicSymbols.getNumbersLayout()
+    } else {
+        getEnglishNumbersLayout()
     }
+}
 
-    fun getSymbolsLayout(
-        language: Language = Language.ENGLISH
-    ): KeyboardLayout {
-        return if (language == Language.ARABIC) {
-            ArabicSymbols.getSymbolsLayout()
-        } else {
-            getEnglishSymbolsLayout()
-        }
+fun getSymbolsLayout(
+    language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
+): KeyboardLayout {
+    return if (language == KeyboardLayout.Language.ARABIC) {
+        ArabicSymbols.getSymbolsLayout()
+    } else {
+        getEnglishSymbolsLayout()
     }
+}
 
-    fun getLayout(
-        mode: KeyboardMode,
-        language: Language = Language.ENGLISH
-    ): KeyboardLayout {
-        return when (mode) {
-            KeyboardMode.ENGLISH -> {
-                if (language == Language.ARABIC) {
-                    getArabicLayout()
-                } else {
+fun getLayout(
+    mode: KeyboardMode,
+    language: KeyboardLayout.Language = KeyboardLayout.Language.ENGLISH
+): KeyboardLayout {
+    return when (mode) {
+        KeyboardMode.ENGLISH -> {
+            if (language == KeyboardLayout.Language.ARABIC) {
+                getArabicLayout()
+            } else {
+                getEnglishLayout()
+            }
+        }
+        KeyboardMode.NUMBERS -> getNumbersLayout(language)
+        KeyboardMode.SYMBOLS -> getSymbolsLayout(language)
+    }
+}
                     getEnglishLayout()
                 }
             }
