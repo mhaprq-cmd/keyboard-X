@@ -223,7 +223,7 @@ class KeyboardInputView @JvmOverloads constructor(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
     ) {
-        val width = MeasureSpec.getSize(widthMeasure)
+        val width = MeasureSpec.getSize(widthMeasureSpec)
 
         val screenHeight = resources.displayMetrics.heightPixels.toFloat()
         val responsiveHeight = screenHeight * 0.33f
