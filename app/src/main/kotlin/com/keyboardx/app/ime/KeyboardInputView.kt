@@ -223,7 +223,7 @@ class KeyboardInputView @JvmOverloads constructor(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
     ) {
-        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasure)
 
         val screenHeight = resources.displayMetrics.heightPixels.toFloat()
         val responsiveHeight = screenHeight * 0.33f
@@ -339,14 +339,23 @@ class KeyboardInputView @JvmOverloads constructor(
             rebuildKeyBounds()
         }
 
-        keyBounds.forEachIndexed { index, rect ->
+        keyBounds.forEachIndexed { index, bounds ->
             val key = keyReferences[index]
             val isPressed = index == pressedKeyIndex
 
+            val visualInset = dp(1.5f)
+
+            val rect = RectF(
+                bounds.left + visualInset,
+                bounds.top + visualInset,
+                bounds.right - visualInset,
+                bounds.bottom - visualInset
+            )
+
             canvas.drawRoundRect(
                 rect,
-                dp(6f),
-                dp(6f),
+                dp(5f),
+                dp(5f),
                 if (isPressed) {
                     pressedKeyPaint
                 } else {
@@ -356,8 +365,8 @@ class KeyboardInputView @JvmOverloads constructor(
 
             canvas.drawRoundRect(
                 rect,
-                dp(6f),
-                dp(6f),
+                dp(5f),
+                dp(5f),
                 keyStrokePaint
             )
 
@@ -365,13 +374,13 @@ class KeyboardInputView @JvmOverloads constructor(
 
             textPaint.textSize = when {
                 key.action != KeyAction.NONE &&
-                    label.length > 2 -> dp(14f)
+                    label.length > 2 -> dp(13f)
 
-                key.code == KeyEvent.KEYCODE_SPACE -> dp(13f)
+                key.code == KeyEvent.KEYCODE_SPACE -> dp(12f)
 
-                label.length > 1 -> dp(17f)
+                label.length > 1 -> dp(16f)
 
-                else -> dp(20f)
+                else -> dp(18f)
             }
 
             val fontMetrics = textPaint.fontMetrics
@@ -480,6 +489,7 @@ class KeyboardInputView @JvmOverloads constructor(
             popupLeft += variantWidth + variantGap
         }
     }
+
     private fun getDisplayLabel(key: Key): String {
         if (key.action == KeyAction.SPACE) {
             return ""
@@ -662,7 +672,6 @@ class KeyboardInputView @JvmOverloads constructor(
             450L
         )
     }
-
     private fun stopLongPress() {
         longPressPending = false
         longPressTriggered = false
@@ -808,15 +817,17 @@ class KeyboardInputView @JvmOverloads constructor(
 
             KeyAction.SWITCH_TO_NUMBERS -> {
                 setKeyboardLayout(
-                    KeyboardLayoutProvider
-                        .getNumbersLayout()
+                    KeyboardLayoutProvider.getNumbersLayout(
+                        activeLanguage
+                    )
                 )
             }
 
             KeyAction.SWITCH_TO_SYMBOLS -> {
                 setKeyboardLayout(
-                    KeyboardLayoutProvider
-                        .getSymbolsLayout()
+                    KeyboardLayoutProvider.getSymbolsLayout(
+                        activeLanguage
+                    )
                 )
             }
 
@@ -833,20 +844,16 @@ class KeyboardInputView @JvmOverloads constructor(
 
                 savePreferredLanguage(activeLanguage)
 
-                if (
-                    activeLanguage ==
-                    KeyboardLayout.Language.ARABIC
-                ) {
-                    setKeyboardLayout(
-                        KeyboardLayoutProvider
-                            .getArabicLayout()
-                    )
-                } else {
-                    setKeyboardLayout(
-                        KeyboardLayoutProvider
-                            .getEnglishLayout()
-                    )
-                }
+                setKeyboardLayout(
+                    if (
+                        activeLanguage ==
+                        KeyboardLayout.Language.ARABIC
+                    ) {
+                        KeyboardLayoutProvider.getArabicLayout()
+                    } else {
+                        KeyboardLayoutProvider.getEnglishLayout()
+                    }
+                )
             }
 
             KeyAction.NONE -> {
