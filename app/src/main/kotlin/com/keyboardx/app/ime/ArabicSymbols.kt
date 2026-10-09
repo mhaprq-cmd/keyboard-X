@@ -109,12 +109,12 @@ object ArabicSymbols {
     val all: List<KeyboardSymbol> =
         (
             arabicNumerals +
-            arabicPunctuation +
-            arabicDiacritics +
-            mathematicalOperators +
-            bracketsAndStructure +
-            commonSymbols
-        ).distinctBy { it.outputText }
+                arabicPunctuation +
+                arabicDiacritics +
+                mathematicalOperators +
+                bracketsAndStructure +
+                commonSymbols
+            ).distinctBy { it.outputText }
 
     fun getNumbersLayout(): KeyboardLayout {
         return KeyboardLayout(
@@ -176,7 +176,8 @@ object ArabicSymbols {
                             KeyEvent.KEYCODE_SPACE,
                             "",
                             " ",
-                            KeyAction.SPACE
+                            KeyAction.SPACE,
+                            widthWeight = 2.5f
                         ),
                         Key(
                             KeyEvent.KEYCODE_DEL,
@@ -187,6 +188,11 @@ object ArabicSymbols {
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
+                        ),
+                        Key(
+                            KeyEvent.KEYCODE_UNKNOWN,
+                            "🔍",
+                            action = KeyAction.SEARCH
                         )
                     )
                 )
@@ -264,7 +270,8 @@ object ArabicSymbols {
                             KeyEvent.KEYCODE_SPACE,
                             "",
                             " ",
-                            KeyAction.SPACE
+                            KeyAction.SPACE,
+                            widthWeight = 2.5f
                         ),
                         Key(
                             KeyEvent.KEYCODE_DEL,
@@ -275,6 +282,11 @@ object ArabicSymbols {
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
+                        ),
+                        Key(
+                            KeyEvent.KEYCODE_UNKNOWN,
+                            "🔍",
+                            action = KeyAction.SEARCH
                         )
                     )
                 )
