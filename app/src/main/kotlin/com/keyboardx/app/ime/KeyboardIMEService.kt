@@ -9,188 +9,190 @@ import android.view.inputmethod.InputConnection
 
 class KeyboardIMEService : InputMethodService() {
 
-private var keyboardInputView: KeyboardInputView? = null
-private var currentEditorInfo: EditorInfo? = null
-private var activeInputConnection: InputConnection? = null
+    private var keyboardInputView: KeyboardInputView? = null
+    private var currentEditorInfo: EditorInfo? = null
+    private var activeInputConnection: InputConnection? = null
 
-override fun onCreateInputView(): View {
-    keyboardInputView = KeyboardInputView(this).apply {
-        setKeyboardLayout(
-            KeyboardLayoutProvider.getEnglishLayout()
-        )
+    override fun onCreateInputView(): View {
+        keyboardInputView = KeyboardInputView(this).apply {
+            setOnKeyboardActionListener(
+                object : KeyboardInputView.OnKeyboardActionListener {
 
-        setOnKeyboardActionListener(
-            object : KeyboardInputView.OnKeyboardActionListener {
+                    override fun onKeyPress(keyCode: Int) {
+                        handleKeyPress(keyCode)
+                    }
 
-                override fun onKeyPress(keyCode: Int) {
-                    handleKeyPress(keyCode)
+                    override fun onText(text: String) {
+                        handleTextInput(text)
+                    }
+
+                    override fun onDelete() {
+                        handleDelete()
+                    }
+
+                    override fun onSpace() {
+                        handleSpace()
+                    }
+
+                    override fun onEnter() {
+                        handleEnter()
+                    }
+
+                    override fun onSearch() {
+                        handleSearch()
+                    }
                 }
-
-                override fun onText(text: String) {
-                    handleTextInput(text)
-                }
-
-                override fun onDelete() {
-                    handleDelete()
-                }
-
-                override fun onSpace() {
-                    handleSpace()
-                }
-
-                override fun onEnter() {
-                    handleEnter()
-                }
-
-                override fun onSearch() {
-                    handleSearch()
-                }
-            }
-        )
-    }
-
-    return keyboardInputView!!
-}
-
-override fun onStartInputView(
-    editorInfo: EditorInfo?,
-    restarting: Boolean
-) {
-    super.onStartInputView(editorInfo, restarting)
-
-    currentEditorInfo = editorInfo
-    activeInputConnection = getCurrentInputConnection()
-
-    if (!restarting) {
-        keyboardInputView?.resetState()
-    }
-}
-
-override fun onStartInput(
-    attribute: EditorInfo?,
-    restarting: Boolean
-) {
-    super.onStartInput(attribute, restarting)
-
-    currentEditorInfo = attribute
-    activeInputConnection = getCurrentInputConnection()
-}
-
-override fun onFinishInputView(finishingInput: Boolean) {
-    super.onFinishInputView(finishingInput)
-
-    activeInputConnection = null
-    currentEditorInfo = null
-    keyboardInputView?.clearFocusAndRefresh()
-}
-
-override fun onEvaluateFullscreenMode(): Boolean {
-    return false
-}
-
-override fun onEvaluateInputViewShown(): Boolean {
-    return true
-}
-
-private fun handleKeyPress(keyCode: Int) {
-    when (keyCode) {
-        KeyEvent.KEYCODE_DEL -> handleDelete()
-        KeyEvent.KEYCODE_SPACE -> handleSpace()
-        KeyEvent.KEYCODE_ENTER -> handleEnter()
-    }
-}
-
-private fun handleTextInput(text: String) {
-    val inputConnection = activeInputConnection ?: return
-    inputConnection.commitText(text, 1)
-}
-
-private fun handleDelete() {
-    val inputConnection = activeInputConnection ?: return
-    inputConnection.deleteSurroundingText(1, 0)
-}
-
-private fun handleSpace() {
-    val inputConnection = activeInputConnection ?: return
-    inputConnection.commitText(" ", 1)
-}
-
-private fun handleSearch() {
-    val inputConnection = activeInputConnection ?: return
-
-    val actionPerformed = inputConnection.performEditorAction(
-        EditorInfo.IME_ACTION_SEARCH
-    )
-
-    if (!actionPerformed) {
-        inputConnection.sendKeyEvent(
-            KeyEvent(
-                KeyEvent.ACTION_DOWN,
-                KeyEvent.KEYCODE_ENTER
             )
-        )
-        inputConnection.sendKeyEvent(
-            KeyEvent(
-                KeyEvent.ACTION_UP,
-                KeyEvent.KEYCODE_ENTER
-            )
-        )
-    }
-}
 
-private fun handleEnter() {
-    val inputConnection = activeInputConnection ?: return
-    val editorInfo = currentEditorInfo ?: return
+            setEditorInfo(currentEditorInfo)
+        }
 
-    val isMultiline =
-        (editorInfo.inputType and
-            InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
-
-    // In multiline fields, ENTER always inserts a new line.
-    if (isMultiline) {
-        inputConnection.commitText("\n", 1)
-        return
+        return keyboardInputView!!
     }
 
-    when (
-        editorInfo.imeOptions and
-            EditorInfo.IME_MASK_ACTION
+    override fun onStartInput(
+        attribute: EditorInfo?,
+        restarting: Boolean
     ) {
-        EditorInfo.IME_ACTION_SEARCH -> {
-            handleSearch()
-            hideKeyboard()
-        }
+        super.onStartInput(attribute, restarting)
 
-        EditorInfo.IME_ACTION_SEND -> {
-            inputConnection.performEditorAction(
-                EditorInfo.IME_ACTION_SEND
-            )
-            hideKeyboard()
-        }
+        currentEditorInfo = attribute
+        activeInputConnection = currentInputConnection
 
-        EditorInfo.IME_ACTION_NEXT -> {
-            inputConnection.performEditorAction(
-                EditorInfo.IME_ACTION_NEXT
-            )
-        }
+        keyboardInputView?.setEditorInfo(attribute)
+    }
 
-        EditorInfo.IME_ACTION_DONE,
-        EditorInfo.IME_ACTION_GO -> {
-            inputConnection.performEditorAction(
-                editorInfo.imeOptions and
-                    EditorInfo.IME_MASK_ACTION
-            )
-            hideKeyboard()
-        }
+    override fun onStartInputView(
+        editorInfo: EditorInfo?,
+        restarting: Boolean
+    ) {
+        super.onStartInputView(editorInfo, restarting)
 
-        else -> {
-            hideKeyboard()
+        currentEditorInfo = editorInfo
+        activeInputConnection = currentInputConnection
+
+        keyboardInputView?.setEditorInfo(editorInfo)
+
+        if (!restarting) {
+            keyboardInputView?.resetState()
         }
     }
-}
 
-private fun hideKeyboard() {
-    requestHideSelf(0)
-}
+    override fun onFinishInputView(finishingInput: Boolean) {
+        super.onFinishInputView(finishingInput)
 
+        activeInputConnection = null
+        currentEditorInfo = null
+
+        keyboardInputView?.setEditorInfo(null)
+        keyboardInputView?.clearFocusAndRefresh()
+    }
+
+    override fun onEvaluateFullscreenMode(): Boolean {
+        return false
+    }
+
+    override fun onEvaluateInputViewShown(): Boolean {
+        return true
+    }
+
+    private fun handleKeyPress(keyCode: Int) {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DEL -> handleDelete()
+            KeyEvent.KEYCODE_SPACE -> handleSpace()
+            KeyEvent.KEYCODE_ENTER -> handleEnter()
+        }
+    }
+
+    private fun handleTextInput(text: String) {
+        val inputConnection = activeInputConnection ?: return
+        inputConnection.commitText(text, 1)
+    }
+
+    private fun handleDelete() {
+        val inputConnection = activeInputConnection ?: return
+        inputConnection.deleteSurroundingText(1, 0)
+    }
+
+    private fun handleSpace() {
+        val inputConnection = activeInputConnection ?: return
+        inputConnection.commitText(" ", 1)
+    }
+
+    private fun handleSearch() {
+        val inputConnection = activeInputConnection ?: return
+
+        val actionPerformed = inputConnection.performEditorAction(
+            EditorInfo.IME_ACTION_SEARCH
+        )
+
+        if (!actionPerformed) {
+            inputConnection.sendKeyEvent(
+                KeyEvent(
+                    KeyEvent.ACTION_DOWN,
+                    KeyEvent.KEYCODE_ENTER
+                )
+            )
+            inputConnection.sendKeyEvent(
+                KeyEvent(
+                    KeyEvent.ACTION_UP,
+                    KeyEvent.KEYCODE_ENTER
+                )
+            )
+        }
+    }
+
+    private fun handleEnter() {
+        val inputConnection = activeInputConnection ?: return
+        val editorInfo = currentEditorInfo ?: return
+
+        val isMultiline =
+            (editorInfo.inputType and
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        if (isMultiline) {
+            inputConnection.commitText("\n", 1)
+            return
+        }
+
+        when (
+            editorInfo.imeOptions and
+                EditorInfo.IME_MASK_ACTION
+        ) {
+            EditorInfo.IME_ACTION_SEARCH -> {
+                handleSearch()
+                hideKeyboard()
+            }
+
+            EditorInfo.IME_ACTION_SEND -> {
+                inputConnection.performEditorAction(
+                    EditorInfo.IME_ACTION_SEND
+                )
+                hideKeyboard()
+            }
+
+            EditorInfo.IME_ACTION_NEXT -> {
+                inputConnection.performEditorAction(
+                    EditorInfo.IME_ACTION_NEXT
+                )
+            }
+
+            EditorInfo.IME_ACTION_DONE,
+            EditorInfo.IME_ACTION_GO -> {
+                inputConnection.performEditorAction(
+                    editorInfo.imeOptions and
+                        EditorInfo.IME_MASK_ACTION
+                )
+                hideKeyboard()
+            }
+
+            else -> {
+                inputConnection.commitText("\n", 1)
+            }
+        }
+    }
+
+    private fun hideKeyboard() {
+        requestHideSelf(0)
+    }
 }
