@@ -1,3 +1,4 @@
+
 package com.keyboardx.app.ime
 
 import android.inputmethodservice.InputMethodService
@@ -115,6 +116,17 @@ class KeyboardIMEService : InputMethodService() {
         val inputConnection = activeInputConnection ?: return
         val editorInfo = currentEditorInfo ?: return
 
+        val isMultiline =
+            (editorInfo.inputType and
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        // Multiline text fields must receive a newline,
+        // even if their editor action is configured as SEARCH.
+        if (isMultiline) {
+            inputConnection.commitText("\n", 1)
+            return
+        }
+
         when (editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION) {
             EditorInfo.IME_ACTION_SEARCH -> {
                 inputConnection.performEditorAction(
@@ -139,20 +151,17 @@ class KeyboardIMEService : InputMethodService() {
             EditorInfo.IME_ACTION_DONE,
             EditorInfo.IME_ACTION_GO -> {
                 inputConnection.performEditorAction(
-                    editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
+                    editorInfo.imeOptions and
+                        EditorInfo.IME_MASK_ACTION
                 )
                 hideKeyboard()
             }
 
             else -> {
-                if (
-                    (editorInfo.inputType and
-                        InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
-                ) {
-                    inputConnection.commitText("\n", 1)
-                } else {
-                    hideKeyboard()
-                }
+                // Do not trigger SEARCH implicitly.
+                // A single-line field without a specific
+                // editor action simply dismisses the keyboard.
+                hideKeyboard()
             }
         }
     }
