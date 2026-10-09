@@ -1,3 +1,4 @@
+
 package com.keyboardx.app.ime
 
 import android.view.KeyEvent
@@ -14,6 +15,7 @@ enum class KeyAction {
     DELETE,
     SPACE,
     ENTER,
+    SEARCH,
     SWITCH_TO_ENGLISH,
     SWITCH_TO_NUMBERS,
     SWITCH_TO_SYMBOLS,
@@ -24,7 +26,8 @@ data class Key(
     val code: Int,
     val label: String,
     val outputText: String? = null,
-    val action: KeyAction = KeyAction.NONE
+    val action: KeyAction = KeyAction.NONE,
+    val widthWeight: Float = 1f
 )
 
 data class Row(
@@ -116,13 +119,19 @@ object KeyboardLayoutProvider {
                             KeyEvent.KEYCODE_SPACE,
                             "Space",
                             " ",
-                            KeyAction.SPACE
+                            KeyAction.SPACE,
+                            widthWeight = 2.5f
                         ),
                         Key(KeyEvent.KEYCODE_PERIOD, "."),
                         Key(
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
+                        ),
+                        Key(
+                            KeyEvent.KEYCODE_UNKNOWN,
+                            "🔍",
+                            action = KeyAction.SEARCH
                         ),
                         Key(
                             KeyEvent.KEYCODE_UNKNOWN,
@@ -201,12 +210,18 @@ object KeyboardLayoutProvider {
                             KeyEvent.KEYCODE_SPACE,
                             "Space",
                             " ",
-                            KeyAction.SPACE
+                            KeyAction.SPACE,
+                            widthWeight = 2.5f
                         ),
                         Key(
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
+                        ),
+                        Key(
+                            KeyEvent.KEYCODE_UNKNOWN,
+                            "🔍",
+                            action = KeyAction.SEARCH
                         )
                     )
                 )
@@ -286,12 +301,18 @@ object KeyboardLayoutProvider {
                             KeyEvent.KEYCODE_SPACE,
                             "Space",
                             " ",
-                            KeyAction.SPACE
+                            KeyAction.SPACE,
+                            widthWeight = 2.5f
                         ),
                         Key(
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
+                        ),
+                        Key(
+                            KeyEvent.KEYCODE_UNKNOWN,
+                            "🔍",
+                            action = KeyAction.SEARCH
                         )
                     )
                 )
