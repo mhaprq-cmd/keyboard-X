@@ -1,3 +1,4 @@
+
 package com.keyboardx.app.ime
 
 import android.view.KeyEvent
@@ -123,7 +124,8 @@ object ArabicKeyboard {
                             KeyEvent.KEYCODE_SPACE,
                             "",
                             " ",
-                            KeyAction.SPACE
+                            KeyAction.SPACE,
+                            widthWeight = 2.5f
                         ),
                         Key(
                             KeyEvent.KEYCODE_PERIOD,
@@ -139,6 +141,11 @@ object ArabicKeyboard {
                             KeyEvent.KEYCODE_ENTER,
                             "↵",
                             action = KeyAction.ENTER
+                        ),
+                        Key(
+                            KeyEvent.KEYCODE_UNKNOWN,
+                            "🔍",
+                            action = KeyAction.SEARCH
                         )
                     )
                 )
