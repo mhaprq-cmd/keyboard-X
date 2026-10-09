@@ -1,6 +1,8 @@
 package com.keyboardx.app.ime
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -27,7 +29,10 @@ class KeyboardInputView @JvmOverloads constructor(
     private var pressedKeyIndex = -1
 
     private val preferences =
-        context.getSharedPreferences("keyboard_x_preferences", Context.MODE_PRIVATE)
+        context.getSharedPreferences(
+            "keyboard_x_preferences",
+            Context.MODE_PRIVATE
+        )
 
     private val keyBounds = mutableListOf<RectF>()
     private val keyReferences = mutableListOf<Key>()
@@ -36,6 +41,7 @@ class KeyboardInputView @JvmOverloads constructor(
         KeyboardSymbols.all.associate { it.label to it.outputText }
 
     private val deleteHandler = Handler(Looper.getMainLooper())
+    private val longPressHandler = Handler(Looper.getMainLooper())
 
     private var deletePressed = false
     private var deleteKeyIndex = -1
@@ -46,101 +52,63 @@ class KeyboardInputView @JvmOverloads constructor(
     private var longPressVariants = emptyList<String>()
     private var selectedVariantIndex = 0
 
-    private val longPressHandler = Handler(Looper.getMainLooper())
-
-    private val longPressRunnable = object : Runnable {
-        override fun run() {
-            if (
-                pressedKeyIndex < 0 ||
-                pressedKeyIndex != longPressKeyIndex
-            ) {
-                return
-            }
-
-            val key = keyReferences.getOrNull(longPressKeyIndex)
-                ?: return
-
-            if (keyboardLayout.language != KeyboardLayout.Language.ARABIC) {
-                return
-            }
-
-            val character =
-                key.outputText ?: key.label
-
-            val variants =
-                ArabicKeyboard.getLongPressVariants(character)
-
-            if (variants.isEmpty()) {
-                return
-            }
-
-            longPressPending = false
-            longPressTriggered = true
-            longPressVariants = variants
-            selectedVariantIndex = 0
-
-            invalidate()
-        }
-    }
-
-    private val deleteRepeatRunnable = object : Runnable {
-        override fun run() {
-            if (!deletePressed) {
-                return
-            }
-
-            onKeyboardActionListener?.onDelete()
-            deleteHandler.postDelayed(this, 65L)
-        }
-    }
+    /*
+     * Phase 6 visual system.
+     * Theme selection follows the Android system light/dark mode.
+     */
+    private var activeTheme: KeyboardTheme =
+        KeyboardThemeManager.getCurrentTheme(context)
 
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFE0E0E0.toInt()
         style = Paint.Style.FILL
     }
 
     private val keyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFFAFAFA.toInt()
         style = Paint.Style.FILL
     }
 
     private val pressedKeyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFD6D6D6.toInt()
         style = Paint.Style.FILL
     }
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFF212121.toInt()
         textAlign = Paint.Align.CENTER
         style = Paint.Style.FILL
     }
 
     private val keyStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFCCCCCC.toInt()
         style = Paint.Style.STROKE
-        strokeWidth = dp(1f)
     }
 
     private val variantBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFFFFFFF.toInt()
         style = Paint.Style.FILL
     }
 
     private val variantSelectedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFD6D6D6.toInt()
         style = Paint.Style.FILL
     }
 
     private val variantStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFAAAAAA.toInt()
         style = Paint.Style.STROKE
-        strokeWidth = dp(1f)
     }
 
     private val variantBounds = mutableListOf<RectF>()
 
+    /*
+     * Static background image already present in the repository:
+     * res/drawable/keyboard_background_static.jpg
+     *
+     * The bitmap is loaded locally; no internet connection is used.
+     */
+    private var staticBackgroundBitmap: Bitmap? = null
+
+    private val backgroundManager = KeyboardBackgroundManager()
+
+    private val backgroundDestination = RectF()
+
     init {
         activeLanguage = loadPreferredLanguage()
+
         keyboardLayout =
             if (activeLanguage == KeyboardLayout.Language.ARABIC) {
                 KeyboardLayoutProvider.getArabicLayout()
@@ -148,7 +116,19 @@ class KeyboardInputView @JvmOverloads constructor(
                 KeyboardLayoutProvider.getEnglishLayout()
             }
 
-        setBackgroundColor(0xFFE0E0E0.toInt())
+        staticBackgroundBitmap = BitmapFactory.decodeResource(
+            resources,
+            R.drawable.keyboard_background_static
+        )
+
+        backgroundManager.setBackground(
+            KeyboardBackground.static(
+                R.drawable.keyboard_background_static
+            )
+        )
+
+        applyTheme(activeTheme)
+
         isFocusable = true
         isClickable = true
     }
@@ -159,10 +139,38 @@ class KeyboardInputView @JvmOverloads constructor(
         fun onDelete()
         fun onSpace()
         fun onEnter()
+        fun onSearch()
     }
 
-    fun setOnKeyboardActionListener(listener: OnKeyboardActionListener?) {
+    fun setOnKeyboardActionListener(
+        listener: OnKeyboardActionListener?
+    ) {
         onKeyboardActionListener = listener
+    }
+
+    private fun applyTheme(theme: KeyboardTheme) {
+        activeTheme = theme
+
+        backgroundPaint.color = theme.backgroundColor
+        keyPaint.color = theme.keyColor
+        pressedKeyPaint.color = theme.pressedKeyColor
+        textPaint.color = theme.textColor
+        keyStrokePaint.color = theme.keyStrokeColor
+        keyStrokePaint.strokeWidth = dp(theme.keyStrokeWidthDp)
+
+        variantBackgroundPaint.color = theme.variantBackgroundColor
+        variantSelectedPaint.color = theme.variantSelectedColor
+        variantStrokePaint.color = theme.variantStrokeColor
+        variantStrokePaint.strokeWidth = dp(theme.keyStrokeWidthDp)
+
+        setBackgroundColor(theme.backgroundColor)
+        invalidate()
+    }
+
+    private fun refreshThemeFromSystem() {
+        applyTheme(
+            KeyboardThemeManager.getCurrentTheme(context)
+        )
     }
 
     fun clearFocusAndRefresh() {
@@ -170,6 +178,7 @@ class KeyboardInputView @JvmOverloads constructor(
         stopLongPress()
         clearFocus()
         pressedKeyIndex = -1
+        refreshThemeFromSystem()
         invalidate()
     }
 
@@ -187,6 +196,7 @@ class KeyboardInputView @JvmOverloads constructor(
         shiftEnabled = false
         pressedKeyIndex = -1
 
+        refreshThemeFromSystem()
         rebuildKeyBounds()
         invalidate()
     }
@@ -225,6 +235,7 @@ class KeyboardInputView @JvmOverloads constructor(
     ) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
 
+        // Preserve the existing keyboard height behavior.
         val screenHeight = resources.displayMetrics.heightPixels.toFloat()
         val responsiveHeight = screenHeight * 0.33f
 
@@ -266,6 +277,10 @@ class KeyboardInputView @JvmOverloads constructor(
         rebuildKeyBounds()
     }
 
+    /*
+     * Key width weights are applied within each row.
+     * Horizontal padding, gaps, row count and keyboard height remain unchanged.
+     */
     private fun rebuildKeyBounds() {
         keyBounds.clear()
         keyReferences.clear()
@@ -296,16 +311,28 @@ class KeyboardInputView @JvmOverloads constructor(
         var top = verticalPadding
 
         keyboardLayout.rows.forEach { row ->
-            val keyCount = row.keys.size
+            val keys = row.keys
+            val keyCount = keys.size
 
             if (keyCount > 0) {
-                val keyWidth =
-                    (availableWidth - keyGap * (keyCount - 1)) /
-                        keyCount
+                val totalGap = keyGap * (keyCount - 1)
+
+                val totalWeight = keys.sumOf { key ->
+                    key.widthWeight.coerceAtLeast(0.1f).toDouble()
+                }.toFloat()
+
+                val availableKeyWidth =
+                    availableWidth - totalGap
 
                 var left = horizontalPadding
 
-                row.keys.forEach { key ->
+                keys.forEach { key ->
+                    val weight =
+                        key.widthWeight.coerceAtLeast(0.1f)
+
+                    val keyWidth =
+                        availableKeyWidth * weight / totalWeight
+
                     val rect = RectF(
                         left,
                         top,
@@ -327,13 +354,7 @@ class KeyboardInputView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawRect(
-            0f,
-            0f,
-            width.toFloat(),
-            height.toFloat(),
-            backgroundPaint
-        )
+        drawKeyboardBackground(canvas)
 
         if (keyBounds.size != keyReferences.size) {
             rebuildKeyBounds()
@@ -343,7 +364,7 @@ class KeyboardInputView @JvmOverloads constructor(
             val key = keyReferences[index]
             val isPressed = index == pressedKeyIndex
 
-            val visualInset = dp(1.5f)
+            val visualInset = dp(activeTheme.keyVisualInsetDp)
 
             val rect = RectF(
                 bounds.left + visualInset,
@@ -354,19 +375,15 @@ class KeyboardInputView @JvmOverloads constructor(
 
             canvas.drawRoundRect(
                 rect,
-                dp(5f),
-                dp(5f),
-                if (isPressed) {
-                    pressedKeyPaint
-                } else {
-                    keyPaint
-                }
+                dp(activeTheme.keyCornerRadiusDp),
+                dp(activeTheme.keyCornerRadiusDp),
+                if (isPressed) pressedKeyPaint else keyPaint
             )
 
             canvas.drawRoundRect(
                 rect,
-                dp(5f),
-                dp(5f),
+                dp(activeTheme.keyCornerRadiusDp),
+                dp(activeTheme.keyCornerRadiusDp),
                 keyStrokePaint
             )
 
@@ -374,13 +391,17 @@ class KeyboardInputView @JvmOverloads constructor(
 
             textPaint.textSize = when {
                 key.action != KeyAction.NONE &&
-                    label.length > 2 -> dp(13f)
+                    label.length > 2 ->
+                    dp(activeTheme.actionTextSizeDp)
 
-                key.code == KeyEvent.KEYCODE_SPACE -> dp(12f)
+                key.code == KeyEvent.KEYCODE_SPACE ->
+                    dp(activeTheme.spaceTextSizeDp)
 
-                label.length > 1 -> dp(16f)
+                label.length > 1 ->
+                    dp(activeTheme.multiCharacterTextSizeDp)
 
-                else -> dp(18f)
+                else ->
+                    dp(activeTheme.singleCharacterTextSizeDp)
             }
 
             val fontMetrics = textPaint.fontMetrics
@@ -402,7 +423,38 @@ class KeyboardInputView @JvmOverloads constructor(
         drawLongPressVariants(canvas)
     }
 
-    private fun drawLongPressVariants(canvas: Canvas) {
+    private fun drawKeyboardBackground(canvas: Canvas) {
+        canvas.drawRect(
+            0f,
+            0f,
+            width.toFloat(),
+            height.toFloat(),
+            backgroundPaint
+        )
+
+        val bitmap = staticBackgroundBitmap ?: return
+        if (bitmap.isRecycled || width <= 0 || height <= 0) return
+
+        backgroundDestination.set(
+            0f,
+            0f,
+            width.toFloat(),
+            height.toFloat()
+        )
+
+        val imagePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            isFilterBitmap = true
+            alpha = 255
+        }
+
+        canvas.drawBitmap(
+            bitmap,
+            null,
+            backgroundDestination,
+            imagePaint
+        )
+    }
+      private fun drawLongPressVariants(canvas: Canvas) {
         if (
             !longPressTriggered ||
             longPressKeyIndex !in keyBounds.indices ||
@@ -414,10 +466,11 @@ class KeyboardInputView @JvmOverloads constructor(
 
         val keyRect = keyBounds[longPressKeyIndex]
 
-        val variantHeight = dp(58f)
-        val variantWidth = dp(54f)
-        val variantGap = dp(3f)
-        val popupPadding = dp(4f)
+        // Smaller popup so it covers less of the keyboard.
+        val variantHeight = dp(38f)
+        val variantWidth = dp(36f)
+        val variantGap = dp(2f)
+        val popupPadding = dp(3f)
 
         val totalWidth =
             popupPadding * 2f +
@@ -435,11 +488,8 @@ class KeyboardInputView @JvmOverloads constructor(
             )
         )
 
-        val popupBottom =
-            keyRect.top - dp(4f)
-
-        val popupTop =
-            popupBottom - variantHeight
+        val popupBottom = keyRect.top - dp(3f)
+        val popupTop = popupBottom - variantHeight
 
         variantBounds.clear()
 
@@ -455,8 +505,8 @@ class KeyboardInputView @JvmOverloads constructor(
 
             canvas.drawRoundRect(
                 rect,
-                dp(7f),
-                dp(7f),
+                dp(activeTheme.variantCornerRadiusDp),
+                dp(activeTheme.variantCornerRadiusDp),
                 if (index == selectedVariantIndex) {
                     variantSelectedPaint
                 } else {
@@ -466,12 +516,12 @@ class KeyboardInputView @JvmOverloads constructor(
 
             canvas.drawRoundRect(
                 rect,
-                dp(7f),
-                dp(7f),
+                dp(activeTheme.variantCornerRadiusDp),
+                dp(activeTheme.variantCornerRadiusDp),
                 variantStrokePaint
             )
 
-            textPaint.textSize = dp(22f)
+            textPaint.textSize = dp(18f)
 
             val fontMetrics = textPaint.fontMetrics
 
@@ -515,49 +565,34 @@ class KeyboardInputView @JvmOverloads constructor(
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-
             MotionEvent.ACTION_DOWN -> {
-                pressedKeyIndex =
-                    findKeyAt(event.x, event.y)
+                pressedKeyIndex = findKeyAt(event.x, event.y)
 
                 if (pressedKeyIndex >= 0) {
                     val key = keyReferences[pressedKeyIndex]
 
                     if (key.action == KeyAction.DELETE) {
-                        startDeleteRepeat(
-                            pressedKeyIndex
-                        )
+                        startDeleteRepeat(pressedKeyIndex)
                     } else {
-                        startLongPress(
-                            pressedKeyIndex
-                        )
+                        startLongPress(pressedKeyIndex)
                     }
                 }
 
                 invalidate()
-
                 return pressedKeyIndex >= 0
             }
 
             MotionEvent.ACTION_MOVE -> {
                 if (longPressTriggered) {
-                    updateVariantSelection(
-                        event.x,
-                        event.y
-                    )
-
+                    updateVariantSelection(event.x, event.y)
                     invalidate()
-
                     return true
                 }
 
-                val newIndex =
-                    findKeyAt(event.x, event.y)
+                val newIndex = findKeyAt(event.x, event.y)
 
-                if (deletePressed) {
-                    if (newIndex != deleteKeyIndex) {
-                        stopDeleteRepeat()
-                    }
+                if (deletePressed && newIndex != deleteKeyIndex) {
+                    stopDeleteRepeat()
                 }
 
                 if (
@@ -584,20 +619,14 @@ class KeyboardInputView @JvmOverloads constructor(
 
                     pressedKeyIndex = -1
                     invalidate()
-
                     performClick()
 
                     return true
                 }
 
-                val releasedIndex =
-                    findKeyAt(event.x, event.y)
-
-                val pressedIndex =
-                    pressedKeyIndex
-
-                val wasDeletePressed =
-                    deletePressed
+                val releasedIndex = findKeyAt(event.x, event.y)
+                val pressedIndex = pressedKeyIndex
+                val wasDeletePressed = deletePressed
 
                 stopLongPress()
                 stopDeleteRepeat()
@@ -609,12 +638,10 @@ class KeyboardInputView @JvmOverloads constructor(
                     pressedIndex >= 0 &&
                     pressedIndex == releasedIndex
                 ) {
-                    val key =
-                        keyReferences[pressedIndex]
+                    val key = keyReferences[pressedIndex]
 
                     if (
-                        key.action !=
-                        KeyAction.DELETE ||
+                        key.action != KeyAction.DELETE ||
                         !wasDeletePressed
                     ) {
                         handleKey(key)
@@ -622,7 +649,6 @@ class KeyboardInputView @JvmOverloads constructor(
                 }
 
                 performClick()
-
                 return true
             }
 
@@ -643,21 +669,17 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun startLongPress(index: Int) {
         stopLongPress()
 
-        if (keyboardLayout.language != KeyboardLayout.Language.ARABIC) {
+        if (
+            keyboardLayout.language !=
+            KeyboardLayout.Language.ARABIC
+        ) {
             return
         }
 
-        val key = keyReferences.getOrNull(index)
-            ?: return
+        val key = keyReferences.getOrNull(index) ?: return
+        val character = key.outputText ?: key.label
 
-        val character =
-            key.outputText ?: key.label
-
-        if (
-            !ArabicKeyboard.hasLongPressVariants(
-                character
-            )
-        ) {
+        if (!ArabicKeyboard.hasLongPressVariants(character)) {
             return
         }
 
@@ -672,6 +694,54 @@ class KeyboardInputView @JvmOverloads constructor(
             450L
         )
     }
+
+    private val longPressRunnable = object : Runnable {
+        override fun run() {
+            if (
+                pressedKeyIndex < 0 ||
+                pressedKeyIndex != longPressKeyIndex
+            ) {
+                return
+            }
+
+            val key = keyReferences.getOrNull(longPressKeyIndex)
+                ?: return
+
+            if (
+                keyboardLayout.language !=
+                KeyboardLayout.Language.ARABIC
+            ) {
+                return
+            }
+
+            val character = key.outputText ?: key.label
+            val variants =
+                ArabicKeyboard.getLongPressVariants(character)
+
+            if (variants.isEmpty()) {
+                return
+            }
+
+            longPressPending = false
+            longPressTriggered = true
+            longPressVariants = variants
+            selectedVariantIndex = 0
+
+            invalidate()
+        }
+    }
+
+    private val deleteRepeatRunnable = object : Runnable {
+        override fun run() {
+            if (!deletePressed) {
+                return
+            }
+
+            onKeyboardActionListener?.onDelete()
+            deleteHandler.postDelayed(this, 65L)
+        }
+    }
+
     private fun stopLongPress() {
         longPressPending = false
         longPressTriggered = false
@@ -679,10 +749,7 @@ class KeyboardInputView @JvmOverloads constructor(
         longPressVariants = emptyList()
         selectedVariantIndex = 0
 
-        longPressHandler.removeCallbacks(
-            longPressRunnable
-        )
-
+        longPressHandler.removeCallbacks(longPressRunnable)
         variantBounds.clear()
     }
 
@@ -707,23 +774,17 @@ class KeyboardInputView @JvmOverloads constructor(
             variantBounds.indices.minByOrNull { index ->
                 val rect = variantBounds[index]
 
-                val dx =
-                    if (x < rect.left) {
-                        rect.left - x
-                    } else if (x > rect.right) {
-                        x - rect.right
-                    } else {
-                        0f
-                    }
+                val dx = when {
+                    x < rect.left -> rect.left - x
+                    x > rect.right -> x - rect.right
+                    else -> 0f
+                }
 
-                val dy =
-                    if (y < rect.top) {
-                        rect.top - y
-                    } else if (y > rect.bottom) {
-                        y - rect.bottom
-                    } else {
-                        0f
-                    }
+                val dy = when {
+                    y < rect.top -> rect.top - y
+                    y > rect.bottom -> y - rect.bottom
+                    else -> 0f
+                }
 
                 dx * dx + dy * dy
             }
@@ -734,15 +795,12 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     private fun commitSelectedVariant() {
-        val variant =
-            longPressVariants.getOrNull(
-                selectedVariantIndex
-            ) ?: return
+        val variant = longPressVariants.getOrNull(
+            selectedVariantIndex
+        ) ?: return
 
         if (variant.isNotEmpty()) {
-            onKeyboardActionListener?.onText(
-                variant
-            )
+            onKeyboardActionListener?.onText(variant)
         }
     }
 
@@ -764,9 +822,7 @@ class KeyboardInputView @JvmOverloads constructor(
         deletePressed = false
         deleteKeyIndex = -1
 
-        deleteHandler.removeCallbacks(
-            deleteRepeatRunnable
-        )
+        deleteHandler.removeCallbacks(deleteRepeatRunnable)
     }
 
     private fun findKeyAt(
@@ -784,7 +840,6 @@ class KeyboardInputView @JvmOverloads constructor(
 
     private fun handleKey(key: Key) {
         when (key.action) {
-
             KeyAction.SHIFT -> {
                 shiftEnabled = !shiftEnabled
                 invalidate()
@@ -800,6 +855,10 @@ class KeyboardInputView @JvmOverloads constructor(
 
             KeyAction.ENTER -> {
                 onKeyboardActionListener?.onEnter()
+            }
+
+            KeyAction.SEARCH -> {
+                onKeyboardActionListener?.onSearch()
             }
 
             KeyAction.SWITCH_TO_ENGLISH -> {
@@ -863,34 +922,28 @@ class KeyboardInputView @JvmOverloads constructor(
                         ?: getDisplayLabel(key)
 
                 if (output.isNotEmpty()) {
-                    onKeyboardActionListener?.onText(
-                        output
-                    )
+                    onKeyboardActionListener?.onText(output)
 
                     if (
                         shiftEnabled &&
                         key.code in
-                        KeyEvent.KEYCODE_A..
-                        KeyEvent.KEYCODE_Z
+                        KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z
                     ) {
                         shiftEnabled = false
                         invalidate()
                     }
                 } else {
-                    onKeyboardActionListener?.onKeyPress(
-                        key.code
-                    )
+                    onKeyboardActionListener?.onKeyPress(key.code)
                 }
             }
         }
     }
 
     private fun loadPreferredLanguage(): KeyboardLayout.Language {
-        val savedLanguage =
-            preferences.getString(
-                "active_language",
-                KeyboardLayout.Language.ENGLISH.name
-            )
+        val savedLanguage = preferences.getString(
+            "active_language",
+            KeyboardLayout.Language.ENGLISH.name
+        )
 
         return if (
             savedLanguage ==
@@ -906,10 +959,7 @@ class KeyboardInputView @JvmOverloads constructor(
         language: KeyboardLayout.Language
     ) {
         preferences.edit()
-            .putString(
-                "active_language",
-                language.name
-            )
+            .putString("active_language", language.name)
             .apply()
     }
 
@@ -919,7 +969,6 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     private fun dp(value: Float): Float {
-        return value *
-            resources.displayMetrics.density
+        return value * resources.displayMetrics.density
     }
-}
+}  
