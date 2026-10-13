@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="ip_page_title">Intellectual Property</string>
+    <string name="ip_page_intro">Learn about ownership of Keyboard X and the proper use of its name, design, and original materials.</string>
+
+    <string name="ip_ownership_title">Ownership and rights</string>
+    <string name="ip_ownership_body">The rights to original software, visual designs, graphics, and other materials in Keyboard X belong to their respective rights holders. Third-party components remain subject to their own licenses and terms.</string>
+
+    <string name="ip_trademark_title">Name and branding</string>
+    <string name="ip_trademark_body">The Keyboard X name, logo, and associated branding must not be used in a way that falsely suggests official approval, affiliation, or endorsement.</string>
+
+    <string name="ip_permissions_title">Permissions and reporting</string>
+    <string name="ip_permissions_body">Permission to use protected materials may be required unless applicable law or a relevant license allows the use. To report a suspected intellectual property concern, contact the support address listed in the app.</string>
+
+</resources>
