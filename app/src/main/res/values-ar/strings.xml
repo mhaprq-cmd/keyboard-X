@@ -7,6 +7,7 @@
 
     <!-- Main navigation -->
     <string name="nav_home">الرئيسية</string>
+    <string name="nav_languages">اللغات</string>
     <string name="nav_appearance">المظهر</string>
     <string name="nav_settings">الإعدادات</string>
 
@@ -22,24 +23,70 @@
     <string name="select_keyboard">اختيار لوحة المفاتيح</string>
     <string name="quick_settings">الإعدادات السريعة</string>
 
+    <!-- Languages -->
+    <string name="language_title">اللغات</string>
+    <string name="language_description">اختر اللغات المتاحة على لوحة المفاتيح.</string>
+    <string name="default_language_title">لغة لوحة المفاتيح الافتراضية</string>
+    <string name="default_language_description">اللغة المستخدمة عند فتح لوحة المفاتيح.</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">الإنجليزية</string>
+    <string name="language_selected">محددة</string>
+    <string name="language_switch_hint">بدّل بين العربية والإنجليزية باستخدام مفتاح اللغة.</string>
+
     <!-- Appearance -->
     <string name="appearance_title">خصّص لوحة مفاتيحك</string>
     <string name="appearance_subtitle">اجعل تجربة الكتابة تعكس أسلوبك.</string>
-    <string name="system_theme_title">مظهر النظام</string>
-    <string name="system_theme_description">تتبع لوحة المفاتيح وضع أندرويد الفاتح أو الداكن.</string>
+    <string name="system_theme_title">مظهر التطبيق</string>
+    <string name="system_theme_description">اتبع مظهر الجهاز أو اختر الوضع الذي تفضله.</string>
+    <string name="theme_follow_system">حسب الجهاز</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
+    <string name="keyboard_theme_title">تصميم لوحة المفاتيح</string>
+    <string name="keyboard_theme_description">اختر شكل أزرار لوحة المفاتيح وخلفيتها الفعلية.</string>
     <string name="keyboard_background_title">خلفية لوحة المفاتيح</string>
-    <string name="keyboard_background_description">إدارة خلفية لوحة المفاتيح.</string>
+    <string name="keyboard_background_description">اختر خلفية مدمجة للوحة المفاتيح.</string>
+    <string name="keyboard_preview_title">جرّب الكتابة</string>
+    <string name="keyboard_preview_description">عاين لوحة المفاتيح واكتب في الحقل أدناه.</string>
+    <string name="keyboard_preview_hint">ابدأ الكتابة هنا…</string>
+    <string name="theme_blue">أزرق</string>
+    <string name="theme_purple">بنفسجي</string>
+    <string name="theme_green">أخضر</string>
+    <string name="theme_pink">وردي</string>
+    <string name="theme_apply">تطبيق المظهر</string>
+    <string name="theme_applied">تم تطبيق المظهر</string>
+    <string name="background_default">الخلفية الافتراضية</string>
+    <string name="background_gradient">تدرّج لوني</string>
 
     <!-- Settings -->
-    <string name="settings_title">إعدادات لوحة المفاتيح</string>
-    <string name="settings_subtitle">تحكّم في طريقة عمل لوحة المفاتيح.</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_subtitle">تحكّم في طريقة عمل لوحة المفاتيح والتطبيق.</string>
     <string name="sound_title">صوت ضغط المفاتيح</string>
     <string name="sound_description">تشغيل صوت عند الضغط على أحد المفاتيح.</string>
     <string name="sound_enabled">الصوت مفعّل</string>
     <string name="sound_disabled">الصوت متوقف</string>
-    <string name="language_title">اللغات</string>
-    <string name="language_description">تخطيطات لوحة المفاتيح العربية والإنجليزية.</string>
+    <string name="app_language_title">لغة التطبيق</string>
+    <string name="app_language_description">اختر اللغة المستخدمة في جميع صفحات Keyboard X.</string>
+    <string name="app_language_system">استخدام لغة الجهاز</string>
+    <string name="app_language_arabic">العربية</string>
+    <string name="app_language_english">الإنجليزية</string>
+    <string name="settings_general">عام</string>
+    <string name="settings_privacy">الخصوصية والبيانات</string>
+    <string name="settings_support">المساعدة والدعم</string>
+    <string name="privacy_policy">سياسة الخصوصية</string>
+    <string name="terms_of_service">شروط الاستخدام</string>
+    <string name="data_management">إدارة البيانات</string>
+    <string name="contact_support">التواصل مع الدعم</string>
     <string name="about_title">حول Keyboard X</string>
+    <string name="about_description">لوحة مفاتيح أصلية مصممة لتوفير تجربة كتابة مريحة بالعربية والإنجليزية.</string>
     <string name="version_label">الإصدار</string>
+    <string name="support_email">البريد الإلكتروني للدعم</string>
+    <string name="coming_soon">قريبًا</string>
+
+    <!-- Common actions -->
+    <string name="action_save">حفظ</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_back">رجوع</string>
+    <string name="action_close">إغلاق</string>
+    <string name="action_done">تم</string>
+    <string name="selection_saved">تم حفظ اختيارك.</string>
 </resources>
-      
