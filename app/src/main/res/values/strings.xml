@@ -89,6 +89,7 @@
     <string name="action_close">Close</string>
     <string name="action_done">Done</string>
     <string name="selection_saved">Your selection has been saved.</string>
+
     <!-- First-launch welcome -->
     <string name="welcome_title">Welcome to Keyboard X</string>
     <string name="welcome_message">Your keyboard is almost ready. Enable Keyboard X in Android settings, then select it as your default keyboard to start typing.</string>
@@ -103,6 +104,7 @@
     <string name="privacy_keyboard_body">A keyboard can process the text you type to provide input functionality. Never enter passwords or sensitive information unless you trust the app and understand its behavior. This policy must be updated if the app adds analytics, network services, cloud processing, or other data collection.</string>
     <string name="privacy_choices_title">Your choices</string>
     <string name="privacy_choices_body">You can disable Keyboard X in Android keyboard settings and remove locally stored app data through Android settings. Available in-app data controls will be listed here when implemented.</string>
+
     <string name="terms_page_title">Terms of Use</string>
     <string name="terms_page_intro">By using Keyboard X, you agree to use the app lawfully and responsibly.</string>
     <string name="terms_license_title">Use and ownership</string>
@@ -124,7 +126,7 @@
     <string name="support_faq_privacy_a">Check the published privacy policy for the exact behavior of the installed version. The policy must be kept aligned with the actual code and any network features.</string>
     <string name="support_contact_title">Contact support</string>
     <string name="support_contact_body">For help, contact the Keyboard X support team by email.</string>
-    <string name="support_email_address">dhmlpy@gmail.com</string>
+    <string name="support_email_address">dmolgax@gmail.com</string>
     <string name="support_report_issue">Report a problem</string>
     <string name="about_legal_notice">Privacy, terms, and support information</string>
 </resources>
