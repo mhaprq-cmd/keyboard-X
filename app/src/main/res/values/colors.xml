@@ -16,6 +16,7 @@
     <!-- Keyboard X light palette -->
     <color name="app_background">#FFF5F7FC</color>
     <color name="app_surface">#FFFFFFFF</color>
+    <color name="app_card_border">#FFE2E7F0</color>
     <color name="app_text_primary">#FF172033</color>
     <color name="app_text_secondary">#FF78849A</color>
     <color name="app_accent">#FF4D63F3</color>
