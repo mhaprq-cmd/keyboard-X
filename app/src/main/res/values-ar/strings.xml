@@ -89,4 +89,43 @@
     <string name="action_close">إغلاق</string>
     <string name="action_done">تم</string>
     <string name="selection_saved">تم حفظ اختيارك.</string>
+<!-- First-launch welcome -->
+    <string name="welcome_title">مرحبًا بك في Keyboard X</string>
+    <string name="welcome_message">لوحة مفاتيحك على وشك أن تصبح جاهزة. فعّل Keyboard X من إعدادات أندرويد، ثم اخترها لوحة المفاتيح الافتراضية لبدء الكتابة.</string>
+    <string name="welcome_later">ربما لاحقًا</string>
+
+    <!-- Privacy and legal pages -->
+    <string name="privacy_page_title">سياسة الخصوصية</string>
+    <string name="privacy_page_intro">خصوصيتك مهمة. توضح هذه الصفحة كيفية تعامل Keyboard X مع المعلومات عند استخدام التطبيق ولوحة المفاتيح.</string>
+    <string name="privacy_data_title">المعلومات والبيانات</string>
+    <string name="privacy_data_body">قد تُحفظ إعدادات لوحة المفاتيح وتفضيلاتك محليًا على جهازك لتشغيل التطبيق. يجب أن يقتصر وصف جمع المعلومات أو مشاركتها على ما ينفذه الإصدار الحالي فعلًا.</string>
+    <string name="privacy_keyboard_title">المعلومات الحساسة أثناء الكتابة</string>
+    <string name="privacy_keyboard_body">قد تعالج لوحة المفاتيح النص الذي تكتبه لتوفير وظيفة الإدخال. تجنّب إدخال كلمات المرور أو المعلومات الحساسة ما لم تكن تثق بالتطبيق وتفهم طريقة عمله. يجب تحديث هذه السياسة إذا أُضيفت خدمات تحليل أو اتصال بالشبكة أو معالجة سحابية أو أي وسائل أخرى لجمع البيانات.</string>
+    <string name="privacy_choices_title">الخيارات المتاحة لك</string>
+    <string name="privacy_choices_body">يمكنك تعطيل Keyboard X من إعدادات لوحات المفاتيح في أندرويد، ومسح بيانات التطبيق المحلية من إعدادات الجهاز. ستُذكر هنا أدوات إدارة البيانات المتاحة داخل التطبيق بعد تنفيذها فعليًا.</string>
+
+    <string name="terms_page_title">شروط الاستخدام</string>
+    <string name="terms_page_intro">باستخدام Keyboard X، فإنك توافق على استخدام التطبيق بطريقة قانونية ومسؤولة.</string>
+    <string name="terms_license_title">الاستخدام والملكية</string>
+    <string name="terms_license_body">يخضع Keyboard X وتصميمه الأصلي وبرمجياته لقوانين الملكية الفكرية المعمول بها. لا تمنحك هذه الشروط ملكية التطبيق أو برمجياته.</string>
+    <string name="terms_responsibility_title">مسؤوليتك</string>
+    <string name="terms_responsibility_body">تقع عليك مسؤولية مراجعة لوحة المفاتيح التي تفعّلها وتحديد المعلومات التي تختار كتابتها. قد تتغير ميزات البرنامج عبر التحديثات. ولا تنتقص هذه الشروط من أي حقوق لا يسمح القانون باستبعادها.</string>
+    <string name="terms_updates_title">التحديثات والتوافر</string>
+    <string name="terms_updates_body">قد تُحدّث الميزات أو تُعدّل أو يُوقف بعضها لتحسين الأمان أو التوافق أو سهولة الاستخدام. يجب مراجعة هذه الشروط قبل النشر العام وتحديثها لتتوافق مع المنتج النهائي والقوانين المعمول بها.</string>
+
+    <!-- Support center -->
+    <string name="support_page_title">المساعدة والدعم</string>
+    <string name="support_page_intro">اعثر على المساعدة المتعلقة بالإعداد وتفعيل لوحة المفاتيح وتبديل اللغات وإعدادات المظهر.</string>
+    <string name="support_faq_title">الأسئلة الشائعة</string>
+    <string name="support_faq_activation_q">كيف أفعّل Keyboard X؟</string>
+    <string name="support_faq_activation_a">افتح إعدادات أندرويد، وانتقل إلى شاشة إدارة لوحات المفاتيح، ثم فعّل Keyboard X. بعد ذلك استخدم أداة اختيار لوحة المفاتيح في النظام لتحديدها.</string>
+    <string name="support_faq_language_q">كيف أبدّل بين اللغات؟</string>
+    <string name="support_faq_language_a">اختر العربية أو الإنجليزية من قسم اللغات. ويعتمد تبديل اللغة أثناء الكتابة على دعم تخطيط لوحة المفاتيح النشطة لمفتاح تبديل اللغة.</string>
+    <string name="support_faq_privacy_q">هل ترسل لوحة المفاتيح ما أكتبه إلى خادم؟</string>
+    <string name="support_faq_privacy_a">راجع سياسة الخصوصية المنشورة لمعرفة السلوك الفعلي للإصدار المثبّت. ويجب أن تتوافق السياسة مع الكود الفعلي وأي ميزات تستخدم الشبكة.</string>
+    <string name="support_contact_title">التواصل مع الدعم</string>
+    <string name="support_contact_body">للحصول على المساعدة، تواصل مع فريق دعم Keyboard X عبر البريد الإلكتروني.</string>
+    <string name="support_email_address">dhmlpy@gmail.com</string>
+    <string name="support_report_issue">الإبلاغ عن مشكلة</string>
+    <string name="about_legal_notice">معلومات الخصوصية والشروط والدعم</string>
 </resources>
