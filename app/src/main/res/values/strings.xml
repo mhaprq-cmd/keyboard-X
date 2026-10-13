@@ -1,7 +1,46 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Keyboard X</string>
     <string name="ime_name">Keyboard X</string>
     <string name="ime_description">A native Android keyboard supporting Arabic and English</string>
     <string name="activation_instructions">To enable this keyboard, go to Settings → Language &amp; input → Virtual keyboard → Manage keyboards and enable Keyboard X</string>
+
+    <!-- Main navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_appearance">Appearance</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home screen -->
+    <string name="home_greeting">Your keyboard, your style</string>
+    <string name="home_subtitle">A smarter, more comfortable typing experience.</string>
+    <string name="keyboard_status_title">Keyboard status</string>
+    <string name="keyboard_enabled">Keyboard enabled</string>
+    <string name="keyboard_not_enabled">Keyboard not enabled</string>
+    <string name="keyboard_selected">Keyboard currently selected</string>
+    <string name="keyboard_not_selected">Select Keyboard X to start typing</string>
+    <string name="enable_keyboard">Enable keyboard</string>
+    <string name="select_keyboard">Select keyboard</string>
+    <string name="quick_settings">Quick settings</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">Personalize your keyboard</string>
+    <string name="appearance_subtitle">Make your typing experience feel like yours.</string>
+    <string name="system_theme_title">System theme</string>
+    <string name="system_theme_description">The keyboard follows your Android light or dark mode.</string>
+    <string name="keyboard_background_title">Keyboard background</string>
+    <string name="keyboard_background_description">Manage the keyboard background.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Keyboard settings</string>
+    <string name="settings_subtitle">Control how your keyboard behaves.</string>
+    <string name="sound_title">Keypress sound</string>
+    <string name="sound_description">Play a sound when you press a key.</string>
+    <string name="sound_enabled">Sound on</string>
+    <string name="sound_disabled">Sound off</string>
+    <string name="language_title">Languages</string>
+    <string name="language_description">Arabic and English keyboard layouts.</string>
+    <string name="about_title">About Keyboard X</string>
+    <string name="version_label">Version</string>
 </resources>
+        
