@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
@@ -38,10 +39,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val activeColor: Int
-        get() = ContextCompat.getColor(
-            this,
-            R.color.app_accent
-        )
+        get() = ContextCompat.getColor(this, R.color.app_accent)
 
     private val inactiveColor: Int
         get() = ContextCompat.getColor(
@@ -67,6 +65,10 @@ class MainActivity : AppCompatActivity() {
         )
 
         refreshLanguageSelection()
+
+        if (savedInstanceState == null) {
+            showFirstLaunchWelcomeDialogIfNeeded()
+        }
     }
 
     override fun onResume() {
@@ -212,6 +214,30 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun showFirstLaunchWelcomeDialogIfNeeded() {
+        if (preferences.getBoolean(KEY_WELCOME_SHOWN, false)) {
+            return
+        }
+
+        // Save the flag before showing the dialog to prevent repeats.
+        preferences.edit()
+            .putBoolean(KEY_WELCOME_SHOWN, true)
+            .apply()
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.app_name)
+            .setMessage(R.string.activation_instructions)
+            .setPositiveButton(R.string.enable_keyboard) { _, _ ->
+                openKeyboardSettings()
+            }
+            .setNeutralButton(R.string.select_keyboard) { _, _ ->
+                showKeyboardPicker()
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .setCancelable(true)
+            .show()
+    }
+
     private fun showScreen(screen: String) {
         val targetScreen = when (screen) {
             SCREEN_HOME,
@@ -253,35 +279,23 @@ class MainActivity : AppCompatActivity() {
             }
 
         navHome.setTextColor(
-            if (targetScreen == SCREEN_HOME) {
-                activeColor
-            } else {
-                inactiveColor
-            }
+            if (targetScreen == SCREEN_HOME) activeColor
+            else inactiveColor
         )
 
         navLanguages.setTextColor(
-            if (targetScreen == SCREEN_LANGUAGES) {
-                activeColor
-            } else {
-                inactiveColor
-            }
+            if (targetScreen == SCREEN_LANGUAGES) activeColor
+            else inactiveColor
         )
 
         navAppearance.setTextColor(
-            if (targetScreen == SCREEN_APPEARANCE) {
-                activeColor
-            } else {
-                inactiveColor
-            }
+            if (targetScreen == SCREEN_APPEARANCE) activeColor
+            else inactiveColor
         )
 
         navSettings.setTextColor(
-            if (targetScreen == SCREEN_SETTINGS) {
-                activeColor
-            } else {
-                inactiveColor
-            }
+            if (targetScreen == SCREEN_SETTINGS) activeColor
+            else inactiveColor
         )
 
         navHome.isSelected = targetScreen == SCREEN_HOME
@@ -327,11 +341,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         keyboardEnabledStatus.setTextColor(
-            if (isSelected) {
-                activeColor
-            } else {
-                inactiveColor
-            }
+            if (isSelected) activeColor else inactiveColor
         )
     }
 
@@ -361,6 +371,9 @@ class MainActivity : AppCompatActivity() {
 
         private const val KEY_ACTIVE_LANGUAGE =
             "active_language"
+
+        private const val KEY_WELCOME_SHOWN =
+            "welcome_dialog_shown"
 
         private const val LANGUAGE_ARABIC = "ARABIC"
         private const val LANGUAGE_ENGLISH = "ENGLISH"
