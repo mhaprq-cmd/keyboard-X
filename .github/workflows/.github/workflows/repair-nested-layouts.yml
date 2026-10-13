@@ -1,0 +1,76 @@
+name: Repair Nested Layout Paths
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "app/src/main/res/layout/app/src/main/res/layout/**"
+      - ".github/workflows/repair-nested-layouts.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair-paths:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Repair nested layout files safely
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          nested="app/src/main/res/layout/app/src/main/res/layout"
+          correct="app/src/main/res/layout"
+
+          files=(
+            "fragment_support.xml"
+            "fragment_intellectual_property.xml"
+          )
+
+          changed=0
+
+          for file in "${files[@]}"; do
+            source="$nested/$file"
+            target="$correct/$file"
+
+            if [[ ! -f "$source" ]]; then
+              echo "No nested copy found for: $file"
+              continue
+            fi
+
+            if [[ -e "$target" ]]; then
+              echo "::warning::Both copies exist for $file. No file was changed."
+              continue
+            fi
+
+            mkdir -p "$correct"
+            cp -- "$source" "$target"
+            cmp -s -- "$source" "$target"
+
+            echo "Recovered file to correct path: $target"
+            changed=1
+          done
+
+          if [[ "$changed" -eq 0 ]]; then
+            echo "No safe path repairs were needed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- "$correct"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Repair nested layout file paths"
+          git push
