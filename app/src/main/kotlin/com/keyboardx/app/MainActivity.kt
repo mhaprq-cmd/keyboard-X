@@ -2,7 +2,6 @@ package com.keyboardx.app
 
 import android.content.Context
 import android.content.Intent
-import android.hardware.input.InputManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
@@ -10,6 +9,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,8 +22,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navSettings: TextView
     private lateinit var keyboardEnabledStatus: TextView
 
-    private val activeColor = 0xFF5546D8.toInt()
-    private val inactiveColor = 0xFF77798B.toInt()
+    private val activeColor: Int
+        get() = ContextCompat.getColor(
+            this,
+            R.color.app_accent
+        )
+
+    private val inactiveColor: Int
+        get() = ContextCompat.getColor(
+            this,
+            R.color.app_text_secondary
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +44,8 @@ class MainActivity : AppCompatActivity() {
         setupShortcuts()
 
         showScreen(
-            savedInstanceState?.getString(KEY_CURRENT_SCREEN) ?: SCREEN_HOME
+            savedInstanceState?.getString(KEY_CURRENT_SCREEN)
+                ?: SCREEN_HOME
         )
     }
 
@@ -130,7 +140,11 @@ class MainActivity : AppCompatActivity() {
             }
 
         navHome.setTextColor(
-            if (screen == SCREEN_HOME) activeColor else inactiveColor
+            if (screen == SCREEN_HOME) {
+                activeColor
+            } else {
+                inactiveColor
+            }
         )
 
         navAppearance.setTextColor(
@@ -187,7 +201,11 @@ class MainActivity : AppCompatActivity() {
         )
 
         keyboardEnabledStatus.setTextColor(
-            if (isSelected) activeColor else inactiveColor
+            if (isSelected) {
+                activeColor
+            } else {
+                inactiveColor
+            }
         )
     }
 
