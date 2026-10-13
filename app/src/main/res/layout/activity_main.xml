@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F6FA"
+    android:background="@color/app_background"
     android:layoutDirection="locale">
 
     <ScrollView
@@ -36,10 +36,10 @@
                     android:layout_height="48dp"
                     android:gravity="center"
                     android:text="X"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/app_background"
                     android:textSize="26sp"
                     android:textStyle="bold"
-                    android:background="#5546D8" />
+                    android:background="@color/app_accent" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -52,7 +52,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="21sp"
                         android:textStyle="bold" />
 
@@ -60,7 +60,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/home_subtitle"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="12sp"
                         android:layout_marginTop="3dp" />
                 </LinearLayout>
@@ -78,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/home_greeting"
-                    android:textColor="#191A2A"
+                    android:textColor="@color/app_text_primary"
                     android:textSize="27sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="20dp" />
@@ -89,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:background="#FFFFFF"
+                    android:background="@color/app_surface"
                     android:elevation="2dp"
                     android:layout_marginBottom="18dp">
 
@@ -97,7 +97,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/keyboard_status_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
@@ -107,7 +107,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/keyboard_not_enabled"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="14sp"
                         android:layout_marginBottom="14dp" />
 
@@ -117,8 +117,8 @@
                         android:layout_height="52dp"
                         android:text="@string/enable_keyboard"
                         android:textAllCaps="false"
-                        android:textColor="#FFFFFF"
-                        android:backgroundTint="#5546D8" />
+                        android:textColor="@color/app_background"
+                        android:backgroundTint="@color/app_accent" />
 
                     <Button
                         android:id="@+id/selectKeyboardButton"
@@ -127,8 +127,8 @@
                         android:layout_marginTop="8dp"
                         android:text="@string/select_keyboard"
                         android:textAllCaps="false"
-                        android:textColor="#5546D8"
-                        android:backgroundTint="#EEECFF" />
+                        android:textColor="@color/app_accent"
+                        android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
 
                 <!-- Quick settings -->
@@ -136,7 +136,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/quick_settings"
-                    android:textColor="#191A2A"
+                    android:textColor="@color/app_text_primary"
                     android:textSize="19sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
@@ -147,7 +147,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF"
+                    android:background="@color/app_surface"
                     android:clickable="true"
                     android:focusable="true"
                     android:layout_marginBottom="12dp">
@@ -156,7 +156,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/appearance_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -164,7 +164,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/system_theme_description"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
@@ -175,7 +175,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF"
+                    android:background="@color/app_surface"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -183,7 +183,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -191,7 +191,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/sound_description"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
@@ -209,7 +209,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/appearance_title"
-                    android:textColor="#191A2A"
+                    android:textColor="@color/app_text_primary"
                     android:textSize="26sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
@@ -218,7 +218,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/appearance_subtitle"
-                    android:textColor="#77798B"
+                    android:textColor="@color/app_text_secondary"
                     android:textSize="14sp"
                     android:layout_marginBottom="22dp" />
 
@@ -227,14 +227,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF"
+                    android:background="@color/app_surface"
                     android:layout_marginBottom="12dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/system_theme_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -242,7 +242,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/system_theme_description"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
@@ -253,13 +253,13 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF">
+                    android:background="@color/app_surface">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/keyboard_background_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -267,7 +267,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/keyboard_background_description"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
@@ -285,7 +285,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_title"
-                    android:textColor="#191A2A"
+                    android:textColor="@color/app_text_primary"
                     android:textSize="26sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
@@ -294,7 +294,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_subtitle"
-                    android:textColor="#77798B"
+                    android:textColor="@color/app_text_secondary"
                     android:textSize="14sp"
                     android:layout_marginBottom="22dp" />
 
@@ -303,14 +303,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF"
+                    android:background="@color/app_surface"
                     android:layout_marginBottom="12dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/sound_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -319,7 +319,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/sound_disabled"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
 
@@ -330,8 +330,8 @@
                         android:layout_marginTop="12dp"
                         android:text="@string/sound_title"
                         android:textAllCaps="false"
-                        android:textColor="#5546D8"
-                        android:backgroundTint="#EEECFF" />
+                        android:textColor="@color/app_accent"
+                        android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -339,14 +339,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF"
+                    android:background="@color/app_surface"
                     android:layout_marginBottom="12dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/language_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -354,7 +354,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/language_description"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
@@ -364,13 +364,13 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="18dp"
-                    android:background="#FFFFFF">
+                    android:background="@color/app_surface">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/about_title"
-                        android:textColor="#191A2A"
+                        android:textColor="@color/app_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -378,7 +378,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/version_label"
-                        android:textColor="#77798B"
+                        android:textColor="@color/app_text_secondary"
                         android:textSize="13sp"
                         android:layout_marginTop="6dp" />
 
@@ -386,7 +386,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="0.1.0"
-                        android:textColor="#5546D8"
+                        android:textColor="@color/app_accent"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:layout_marginTop="4dp" />
@@ -402,7 +402,7 @@
         android:layout_height="68dp"
         android:orientation="horizontal"
         android:gravity="center"
-        android:background="#FFFFFF"
+        android:background="@color/app_surface"
         android:elevation="8dp">
 
         <TextView
@@ -412,7 +412,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/nav_home"
-            android:textColor="#5546D8"
+            android:textColor="@color/app_accent"
             android:textSize="13sp"
             android:textStyle="bold"
             android:clickable="true"
@@ -425,7 +425,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/nav_appearance"
-            android:textColor="#77798B"
+            android:textColor="@color/app_text_secondary"
             android:textSize="13sp"
             android:clickable="true"
             android:focusable="true" />
@@ -437,11 +437,11 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/nav_settings"
-            android:textColor="#77798B"
+            android:textColor="@color/app_text_secondary"
             android:textSize="13sp"
             android:clickable="true"
             android:focusable="true" />
     </LinearLayout>
 
 </LinearLayout>
-                
+                    
