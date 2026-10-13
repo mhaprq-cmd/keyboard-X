@@ -10,4 +10,14 @@
     <color name="keyboard_bg">#FFE0E0E0</color>
     <color name="key_bg">#FFFAFAFA</color>
     <color name="key_text">#FF212121</color>
+
+    <!-- Keyboard X app interface colors: light theme -->
+    <color name="app_background">#FFF5F6FA</color>
+    <color name="app_surface">#FFFFFFFF</color>
+    <color name="app_text_primary">#FF191A2A</color>
+    <color name="app_text_secondary">#FF77798B</color>
+    <color name="app_accent">#FF5546D8</color>
+    <color name="app_accent_soft">#FFEEECFF</color>
+    <color name="app_status_bar">#FF4435B5</color>
+    <color name="app_navigation_bar">#FFFFFFFF</color>
 </resources>
