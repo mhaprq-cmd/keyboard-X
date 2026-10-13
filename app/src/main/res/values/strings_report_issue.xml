@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="report_issue_title">Report a problem</string>
+    <string name="report_issue_intro">Tell us what happened. Review your report in your email app before sending it.</string>
+
+    <string name="report_name_label">Name (optional)</string>
+    <string name="report_name_hint">Enter your name</string>
+
+    <string name="report_email_label">Email address</string>
+    <string name="report_email_hint">you@example.com</string>
+
+    <string name="report_category_label">Problem type</string>
+    <string name="report_category_hint">Choose a problem type</string>
+    <string name="report_category_activation">Keyboard activation</string>
+    <string name="report_category_typing">Typing or keyboard behavior</string>
+    <string name="report_category_language">Language or layout</string>
+    <string name="report_category_appearance">Appearance or themes</string>
+    <string name="report_category_crash">App crash or technical error</string>
+    <string name="report_category_privacy">Privacy or data concern</string>
+    <string name="report_category_other">Other</string>
+
+    <string name="report_description_label">Describe the problem</string>
+    <string name="report_description_hint">Explain what happened and how to reproduce the problem.</string>
+    <string name="report_privacy_note">Your email app will open with the report prepared for review. Nothing is sent automatically by Keyboard X.</string>
+
+    <string name="report_send_button">Prepare email report</string>
+    <string name="report_error_email_required">Enter your email address.</string>
+    <string name="report_error_email_invalid">Enter a valid email address.</string>
+    <string name="report_error_category_required">Choose a problem type.</string>
+    <string name="report_error_description_required">Describe the problem before continuing.</string>
+    <string name="report_error_email_app_unavailable">No email app is available to prepare this report.</string>
+
+    <string name="report_email_subject">Keyboard X problem report: %1$s</string>
+    <string name="report_email_body">Problem report for Keyboard X\n\nName: %1$s\nContact email: %2$s\nProblem type: %3$s\n\nDescription:\n%4$s</string>
+</resources>
