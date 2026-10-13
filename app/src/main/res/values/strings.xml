@@ -7,6 +7,7 @@
 
     <!-- Main navigation -->
     <string name="nav_home">Home</string>
+    <string name="nav_languages">Languages</string>
     <string name="nav_appearance">Appearance</string>
     <string name="nav_settings">Settings</string>
 
@@ -22,24 +23,70 @@
     <string name="select_keyboard">Select keyboard</string>
     <string name="quick_settings">Quick settings</string>
 
+    <!-- Languages -->
+    <string name="language_title">Languages</string>
+    <string name="language_description">Choose the languages available on your keyboard.</string>
+    <string name="default_language_title">Default keyboard language</string>
+    <string name="default_language_description">The language used when the keyboard opens.</string>
+    <string name="language_arabic">Arabic</string>
+    <string name="language_english">English</string>
+    <string name="language_selected">Selected</string>
+    <string name="language_switch_hint">Switch between Arabic and English using the language key.</string>
+
     <!-- Appearance -->
     <string name="appearance_title">Personalize your keyboard</string>
     <string name="appearance_subtitle">Make your typing experience feel like yours.</string>
-    <string name="system_theme_title">System theme</string>
-    <string name="system_theme_description">The keyboard follows your Android light or dark mode.</string>
+    <string name="system_theme_title">App appearance</string>
+    <string name="system_theme_description">Follow the system appearance or choose a mode.</string>
+    <string name="theme_follow_system">Follow device</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="keyboard_theme_title">Keyboard design</string>
+    <string name="keyboard_theme_description">Choose how the actual keyboard keys and background look.</string>
     <string name="keyboard_background_title">Keyboard background</string>
-    <string name="keyboard_background_description">Manage the keyboard background.</string>
+    <string name="keyboard_background_description">Choose a built-in background for the keyboard.</string>
+    <string name="keyboard_preview_title">Try typing</string>
+    <string name="keyboard_preview_description">Preview the keyboard and type in the field below.</string>
+    <string name="keyboard_preview_hint">Start typing here…</string>
+    <string name="theme_blue">Blue</string>
+    <string name="theme_purple">Purple</string>
+    <string name="theme_green">Green</string>
+    <string name="theme_pink">Pink</string>
+    <string name="theme_apply">Apply appearance</string>
+    <string name="theme_applied">Appearance applied</string>
+    <string name="background_default">Default background</string>
+    <string name="background_gradient">Gradient</string>
 
     <!-- Settings -->
-    <string name="settings_title">Keyboard settings</string>
-    <string name="settings_subtitle">Control how your keyboard behaves.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Control how your keyboard and app behave.</string>
     <string name="sound_title">Keypress sound</string>
     <string name="sound_description">Play a sound when you press a key.</string>
     <string name="sound_enabled">Sound on</string>
     <string name="sound_disabled">Sound off</string>
-    <string name="language_title">Languages</string>
-    <string name="language_description">Arabic and English keyboard layouts.</string>
+    <string name="app_language_title">App language</string>
+    <string name="app_language_description">Choose the language used throughout Keyboard X.</string>
+    <string name="app_language_system">Use device language</string>
+    <string name="app_language_arabic">العربية</string>
+    <string name="app_language_english">English</string>
+    <string name="settings_general">General</string>
+    <string name="settings_privacy">Privacy and data</string>
+    <string name="settings_support">Help and support</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="terms_of_service">Terms of use</string>
+    <string name="data_management">Data management</string>
+    <string name="contact_support">Contact support</string>
     <string name="about_title">About Keyboard X</string>
+    <string name="about_description">A native keyboard designed for comfortable Arabic and English typing.</string>
     <string name="version_label">Version</string>
+    <string name="support_email">Support email</string>
+    <string name="coming_soon">Coming soon</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_back">Back</string>
+    <string name="action_close">Close</string>
+    <string name="action_done">Done</string>
+    <string name="selection_saved">Your selection has been saved.</string>
 </resources>
-        
