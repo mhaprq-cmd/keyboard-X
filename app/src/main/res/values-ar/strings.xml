@@ -1,0 +1,46 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Keyboard X</string>
+    <string name="ime_name">Keyboard X</string>
+    <string name="ime_description">لوحة مفاتيح أندرويد أصلية تدعم العربية والإنجليزية</string>
+    <string name="activation_instructions">لتفعيل لوحة المفاتيح، انتقل إلى إعدادات أندرويد ثم اللغة والإدخال ثم لوحة المفاتيح الافتراضية، وفعّل Keyboard X</string>
+
+    <!-- Main navigation -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_appearance">المظهر</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <!-- Home screen -->
+    <string name="home_greeting">لوحة مفاتيحك، بأسلوبك</string>
+    <string name="home_subtitle">تجربة كتابة أكثر ذكاءً وراحة.</string>
+    <string name="keyboard_status_title">حالة لوحة المفاتيح</string>
+    <string name="keyboard_enabled">لوحة المفاتيح مفعّلة</string>
+    <string name="keyboard_not_enabled">لوحة المفاتيح غير مفعّلة</string>
+    <string name="keyboard_selected">لوحة المفاتيح محددة حاليًا</string>
+    <string name="keyboard_not_selected">اختر Keyboard X لبدء الكتابة</string>
+    <string name="enable_keyboard">تفعيل لوحة المفاتيح</string>
+    <string name="select_keyboard">اختيار لوحة المفاتيح</string>
+    <string name="quick_settings">الإعدادات السريعة</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">خصّص لوحة مفاتيحك</string>
+    <string name="appearance_subtitle">اجعل تجربة الكتابة تعكس أسلوبك.</string>
+    <string name="system_theme_title">مظهر النظام</string>
+    <string name="system_theme_description">تتبع لوحة المفاتيح وضع أندرويد الفاتح أو الداكن.</string>
+    <string name="keyboard_background_title">خلفية لوحة المفاتيح</string>
+    <string name="keyboard_background_description">إدارة خلفية لوحة المفاتيح.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">إعدادات لوحة المفاتيح</string>
+    <string name="settings_subtitle">تحكّم في طريقة عمل لوحة المفاتيح.</string>
+    <string name="sound_title">صوت ضغط المفاتيح</string>
+    <string name="sound_description">تشغيل صوت عند الضغط على أحد المفاتيح.</string>
+    <string name="sound_enabled">الصوت مفعّل</string>
+    <string name="sound_disabled">الصوت متوقف</string>
+    <string name="language_title">اللغات</string>
+    <string name="language_description">تخطيطات لوحة المفاتيح العربية والإنجليزية.</string>
+    <string name="about_title">حول Keyboard X</string>
+    <string name="version_label">الإصدار</string>
+</resources>
+      
