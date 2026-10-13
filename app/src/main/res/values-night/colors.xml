@@ -3,6 +3,7 @@
     <!-- Keyboard X app interface colors: dark theme -->
     <color name="app_background">#FF12131B</color>
     <color name="app_surface">#FF1D1F2B</color>
+    <color name="app_card_border">#FF343747</color>
     <color name="app_text_primary">#FFF4F3FF</color>
     <color name="app_text_secondary">#FFB1B2C5</color>
     <color name="app_accent">#FFA69BFF</color>
@@ -10,4 +11,3 @@
     <color name="app_status_bar">#FF12131B</color>
     <color name="app_navigation_bar">#FF12131B</color>
 </resources>
-
