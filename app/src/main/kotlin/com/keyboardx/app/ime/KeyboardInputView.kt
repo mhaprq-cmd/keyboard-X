@@ -1,3 +1,4 @@
+
 package com.keyboardx.app.ime
 
 import com.keyboardx.app.R
@@ -10,10 +11,12 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
+import android.text.InputType
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import kotlin.math.max
 import kotlin.math.min
 
@@ -25,8 +28,12 @@ class KeyboardInputView @JvmOverloads constructor(
 
     private var onKeyboardActionListener: OnKeyboardActionListener? = null
 
-    private var keyboardLayout = KeyboardLayoutProvider.getEnglishLayout()
+    private var baseKeyboardLayout =
+        KeyboardLayoutProvider.getEnglishLayout()
+
+    private var keyboardLayout = baseKeyboardLayout
     private var activeLanguage = KeyboardLayout.Language.ENGLISH
+    private var currentEditorInfo: EditorInfo? = null
     private var shiftEnabled = false
     private var pressedKeyIndex = -1
 
@@ -111,12 +118,13 @@ class KeyboardInputView @JvmOverloads constructor(
     init {
         activeLanguage = loadPreferredLanguage()
 
-        keyboardLayout =
+        baseKeyboardLayout =
             if (activeLanguage == KeyboardLayout.Language.ARABIC) {
                 KeyboardLayoutProvider.getArabicLayout()
             } else {
                 KeyboardLayoutProvider.getEnglishLayout()
             }
+        keyboardLayout = applyEditorActionToLayout(baseKeyboardLayout)
 
         staticBackgroundBitmap = BitmapFactory.decodeResource(
             resources,
@@ -188,12 +196,15 @@ class KeyboardInputView @JvmOverloads constructor(
         stopDeleteRepeat()
         stopLongPress()
 
-        keyboardLayout =
+        activeLanguage = loadPreferredLanguage()
+
+        baseKeyboardLayout =
             if (activeLanguage == KeyboardLayout.Language.ARABIC) {
                 KeyboardLayoutProvider.getArabicLayout()
             } else {
                 KeyboardLayoutProvider.getEnglishLayout()
             }
+        keyboardLayout = applyEditorActionToLayout(baseKeyboardLayout)
 
         shiftEnabled = false
         pressedKeyIndex = -1
@@ -207,7 +218,8 @@ class KeyboardInputView @JvmOverloads constructor(
         stopDeleteRepeat()
         stopLongPress()
 
-        keyboardLayout = layout
+        baseKeyboardLayout = layout
+        keyboardLayout = applyEditorActionToLayout(baseKeyboardLayout)
 
         if (layout.mode == KeyboardMode.ENGLISH) {
             activeLanguage = layout.language
@@ -219,6 +231,65 @@ class KeyboardInputView @JvmOverloads constructor(
 
         rebuildKeyBounds()
         invalidate()
+    }
+
+    fun setEditorInfo(editorInfo: EditorInfo?) {
+        currentEditorInfo = editorInfo
+        keyboardLayout = applyEditorActionToLayout(baseKeyboardLayout)
+        rebuildKeyBounds()
+        invalidate()
+    }
+
+    private fun applyEditorActionToLayout(
+        layout: KeyboardLayout
+    ): KeyboardLayout {
+        val rowIndex = layout.rows.lastIndex
+        if (rowIndex < 0) return layout
+
+        val row = layout.rows[rowIndex]
+        val enterIndex = row.keys.indexOfFirst {
+            it.action == KeyAction.ENTER
+        }
+        val searchIndex = row.keys.indexOfFirst {
+            it.action == KeyAction.SEARCH
+        }
+
+        if (enterIndex < 0 || searchIndex < 0) return layout
+
+        val editorInfo = currentEditorInfo
+        val isMultiline =
+            editorInfo != null &&
+                (editorInfo.inputType and
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+
+        val isSearchAction =
+            editorInfo != null &&
+                !isMultiline &&
+                (editorInfo.imeOptions and
+                    EditorInfo.IME_MASK_ACTION) ==
+                    EditorInfo.IME_ACTION_SEARCH
+
+        val actionToKeep =
+            if (isSearchAction) KeyAction.SEARCH else KeyAction.ENTER
+
+        val actionKey = row.keys.first {
+            it.action == actionToKeep
+        }
+        val actionPosition = minOf(enterIndex, searchIndex)
+
+        val newKeys = row.keys.filter {
+            it.action != KeyAction.ENTER &&
+                it.action != KeyAction.SEARCH
+        }.toMutableList()
+
+        newKeys.add(
+            actionPosition.coerceAtMost(newKeys.size),
+            actionKey
+        )
+
+        val updatedRows = layout.rows.toMutableList()
+        updatedRows[rowIndex] = Row(newKeys)
+        return layout.copy(rows = updatedRows)
     }
 
     fun getAvailableSymbols(): List<KeyboardSymbol> {
@@ -456,7 +527,8 @@ class KeyboardInputView @JvmOverloads constructor(
             imagePaint
         )
     }
-      private fun drawLongPressVariants(canvas: Canvas) {
+  
+    private fun drawLongPressVariants(canvas: Canvas) {
         if (
             !longPressTriggered ||
             longPressKeyIndex !in keyBounds.indices ||
@@ -973,4 +1045,4 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun dp(value: Float): Float {
         return value * resources.displayMetrics.density
     }
-}  
+}
