@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.LinearLayout
@@ -14,10 +15,12 @@ import androidx.core.content.ContextCompat
 class MainActivity : AppCompatActivity() {
 
     private lateinit var homeScreen: LinearLayout
+    private lateinit var languagesScreen: LinearLayout
     private lateinit var appearanceScreen: LinearLayout
     private lateinit var settingsScreen: LinearLayout
 
     private lateinit var navHome: TextView
+    private lateinit var navLanguages: TextView
     private lateinit var navAppearance: TextView
     private lateinit var navSettings: TextView
     private lateinit var keyboardEnabledStatus: TextView
@@ -33,6 +36,8 @@ class MainActivity : AppCompatActivity() {
             this,
             R.color.app_text_secondary
         )
+
+    private var currentScreen = SCREEN_HOME
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,14 +67,14 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    private var currentScreen = SCREEN_HOME
-
     private fun bindViews() {
         homeScreen = findViewById(R.id.homeScreen)
+        languagesScreen = findViewById(R.id.languagesScreen)
         appearanceScreen = findViewById(R.id.appearanceScreen)
         settingsScreen = findViewById(R.id.settingsScreen)
 
         navHome = findViewById(R.id.navHome)
+        navLanguages = findViewById(R.id.navLanguages)
         navAppearance = findViewById(R.id.navAppearance)
         navSettings = findViewById(R.id.navSettings)
 
@@ -80,6 +85,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigation() {
         navHome.setOnClickListener {
             showScreen(SCREEN_HOME)
+        }
+
+        navLanguages.setOnClickListener {
+            showScreen(SCREEN_LANGUAGES)
         }
 
         navAppearance.setOnClickListener {
@@ -116,31 +125,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showScreen(screen: String) {
-        currentScreen = screen
+        val targetScreen = when (screen) {
+            SCREEN_HOME,
+            SCREEN_LANGUAGES,
+            SCREEN_APPEARANCE,
+            SCREEN_SETTINGS -> screen
+
+            else -> SCREEN_HOME
+        }
+
+        currentScreen = targetScreen
 
         homeScreen.visibility =
-            if (screen == SCREEN_HOME) {
-                android.view.View.VISIBLE
+            if (targetScreen == SCREEN_HOME) {
+                View.VISIBLE
             } else {
-                android.view.View.GONE
+                View.GONE
+            }
+
+        languagesScreen.visibility =
+            if (targetScreen == SCREEN_LANGUAGES) {
+                View.VISIBLE
+            } else {
+                View.GONE
             }
 
         appearanceScreen.visibility =
-            if (screen == SCREEN_APPEARANCE) {
-                android.view.View.VISIBLE
+            if (targetScreen == SCREEN_APPEARANCE) {
+                View.VISIBLE
             } else {
-                android.view.View.GONE
+                View.GONE
             }
 
         settingsScreen.visibility =
-            if (screen == SCREEN_SETTINGS) {
-                android.view.View.VISIBLE
+            if (targetScreen == SCREEN_SETTINGS) {
+                View.VISIBLE
             } else {
-                android.view.View.GONE
+                View.GONE
             }
 
         navHome.setTextColor(
-            if (screen == SCREEN_HOME) {
+            if (targetScreen == SCREEN_HOME) {
+                activeColor
+            } else {
+                inactiveColor
+            }
+        )
+
+        navLanguages.setTextColor(
+            if (targetScreen == SCREEN_LANGUAGES) {
                 activeColor
             } else {
                 inactiveColor
@@ -148,7 +181,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         navAppearance.setTextColor(
-            if (screen == SCREEN_APPEARANCE) {
+            if (targetScreen == SCREEN_APPEARANCE) {
                 activeColor
             } else {
                 inactiveColor
@@ -156,18 +189,19 @@ class MainActivity : AppCompatActivity() {
         )
 
         navSettings.setTextColor(
-            if (screen == SCREEN_SETTINGS) {
+            if (targetScreen == SCREEN_SETTINGS) {
                 activeColor
             } else {
                 inactiveColor
             }
         )
 
-        navHome.isSelected = screen == SCREEN_HOME
-        navAppearance.isSelected = screen == SCREEN_APPEARANCE
-        navSettings.isSelected = screen == SCREEN_SETTINGS
+        navHome.isSelected = targetScreen == SCREEN_HOME
+        navLanguages.isSelected = targetScreen == SCREEN_LANGUAGES
+        navAppearance.isSelected = targetScreen == SCREEN_APPEARANCE
+        navSettings.isSelected = targetScreen == SCREEN_SETTINGS
     }
-
+    
     private fun refreshKeyboardStatus() {
         val inputMethodManager =
             getSystemService(Context.INPUT_METHOD_SERVICE)
@@ -233,6 +267,7 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_CURRENT_SCREEN = "current_screen"
 
         private const val SCREEN_HOME = "home"
+        private const val SCREEN_LANGUAGES = "languages"
         private const val SCREEN_APPEARANCE = "appearance"
         private const val SCREEN_SETTINGS = "settings"
     }
