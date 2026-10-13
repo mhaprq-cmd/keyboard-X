@@ -25,6 +25,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navSettings: TextView
     private lateinit var keyboardEnabledStatus: TextView
 
+    private lateinit var languageArabicCard: LinearLayout
+    private lateinit var languageEnglishCard: LinearLayout
+    private lateinit var languageArabicSelected: TextView
+    private lateinit var languageEnglishSelected: TextView
+
+    private val preferences by lazy {
+        getSharedPreferences(
+            LANGUAGE_PREFERENCES,
+            Context.MODE_PRIVATE
+        )
+    }
+
     private val activeColor: Int
         get() = ContextCompat.getColor(
             this,
@@ -47,11 +59,14 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         setupKeyboardActions()
         setupShortcuts()
+        setupLanguageSelection()
 
         showScreen(
             savedInstanceState?.getString(KEY_CURRENT_SCREEN)
                 ?: SCREEN_HOME
         )
+
+        refreshLanguageSelection()
     }
 
     override fun onResume() {
@@ -59,6 +74,10 @@ class MainActivity : AppCompatActivity() {
 
         if (::keyboardEnabledStatus.isInitialized) {
             refreshKeyboardStatus()
+        }
+
+        if (::languageArabicCard.isInitialized) {
+            refreshLanguageSelection()
         }
     }
 
@@ -80,6 +99,18 @@ class MainActivity : AppCompatActivity() {
 
         keyboardEnabledStatus =
             findViewById(R.id.keyboardEnabledStatus)
+
+        languageArabicCard =
+            findViewById(R.id.languageArabicCard)
+
+        languageEnglishCard =
+            findViewById(R.id.languageEnglishCard)
+
+        languageArabicSelected =
+            findViewById(R.id.languageArabicSelected)
+
+        languageEnglishSelected =
+            findViewById(R.id.languageEnglishSelected)
     }
 
     private fun setupNavigation() {
@@ -121,6 +152,63 @@ class MainActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.homeSettingsShortcut)
             .setOnClickListener {
                 showScreen(SCREEN_SETTINGS)
+            }
+    }
+
+    private fun setupLanguageSelection() {
+        languageArabicCard.setOnClickListener {
+            savePreferredLanguage(LANGUAGE_ARABIC)
+            refreshLanguageSelection()
+        }
+
+        languageEnglishCard.setOnClickListener {
+            savePreferredLanguage(LANGUAGE_ENGLISH)
+            refreshLanguageSelection()
+        }
+    }
+
+    private fun savePreferredLanguage(language: String) {
+        preferences.edit()
+            .putString(KEY_ACTIVE_LANGUAGE, language)
+            .apply()
+    }
+
+    private fun refreshLanguageSelection() {
+        val selectedLanguage = preferences.getString(
+            KEY_ACTIVE_LANGUAGE,
+            LANGUAGE_ENGLISH
+        ) ?: LANGUAGE_ENGLISH
+
+        val isArabicSelected =
+            selectedLanguage == LANGUAGE_ARABIC
+
+        languageArabicSelected.visibility =
+            if (isArabicSelected) View.VISIBLE else View.GONE
+
+        languageEnglishSelected.visibility =
+            if (isArabicSelected) View.GONE else View.VISIBLE
+
+        languageArabicCard.isSelected = isArabicSelected
+        languageEnglishCard.isSelected = !isArabicSelected
+
+        languageArabicCard.alpha =
+            if (isArabicSelected) 1.0f else 0.78f
+
+        languageEnglishCard.alpha =
+            if (isArabicSelected) 0.78f else 1.0f
+
+        languageArabicCard.contentDescription =
+            if (isArabicSelected) {
+                "العربية، اللغة المحددة"
+            } else {
+                "العربية"
+            }
+
+        languageEnglishCard.contentDescription =
+            if (!isArabicSelected) {
+                "الإنجليزية، اللغة المحددة"
+            } else {
+                "الإنجليزية"
             }
     }
 
@@ -200,8 +288,12 @@ class MainActivity : AppCompatActivity() {
         navLanguages.isSelected = targetScreen == SCREEN_LANGUAGES
         navAppearance.isSelected = targetScreen == SCREEN_APPEARANCE
         navSettings.isSelected = targetScreen == SCREEN_SETTINGS
+
+        if (targetScreen == SCREEN_LANGUAGES) {
+            refreshLanguageSelection()
+        }
     }
-    
+
     private fun refreshKeyboardStatus() {
         val inputMethodManager =
             getSystemService(Context.INPUT_METHOD_SERVICE)
@@ -264,6 +356,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val LANGUAGE_PREFERENCES =
+            "keyboard_x_preferences"
+
+        private const val KEY_ACTIVE_LANGUAGE =
+            "active_language"
+
+        private const val LANGUAGE_ARABIC = "ARABIC"
+        private const val LANGUAGE_ENGLISH = "ENGLISH"
+
         private const val KEY_CURRENT_SCREEN = "current_screen"
 
         private const val SCREEN_HOME = "home"
