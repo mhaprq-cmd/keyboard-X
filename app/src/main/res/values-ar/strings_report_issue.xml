@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="report_issue_title">الإبلاغ عن مشكلة</string>
+    <string name="report_issue_intro">أخبرنا بما حدث. ستتمكن من مراجعة البلاغ داخل تطبيق البريد قبل إرساله.</string>
+
+    <string name="report_name_label">الاسم (اختياري)</string>
+    <string name="report_name_hint">اكتب اسمك</string>
+
+    <string name="report_email_label">البريد الإلكتروني</string>
+    <string name="report_email_hint">you@example.com</string>
+
+    <string name="report_category_label">نوع المشكلة</string>
+    <string name="report_category_hint">اختر نوع المشكلة</string>
+    <string name="report_category_activation">تفعيل لوحة المفاتيح</string>
+    <string name="report_category_typing">الكتابة أو سلوك لوحة المفاتيح</string>
+    <string name="report_category_language">اللغة أو تخطيط المفاتيح</string>
+    <string name="report_category_appearance">المظهر أو السمات</string>
+    <string name="report_category_crash">تعطل التطبيق أو خطأ تقني</string>
+    <string name="report_category_privacy">مشكلة تتعلق بالخصوصية أو البيانات</string>
+    <string name="report_category_other">مشكلة أخرى</string>
+
+    <string name="report_description_label">وصف المشكلة</string>
+    <string name="report_description_hint">اشرح ما حدث، والخطوات التي تؤدي إلى ظهور المشكلة إن أمكن.</string>
+    <string name="report_privacy_note">سيفتح تطبيق البريد والبلاغ مجهز للمراجعة. لا يرسل Keyboard X أي شيء تلقائيًا.</string>
+
+    <string name="report_send_button">تجهيز البلاغ في البريد</string>
+    <string name="report_error_email_required">اكتب بريدك الإلكتروني.</string>
+    <string name="report_error_email_invalid">اكتب عنوان بريد إلكتروني صحيحًا.</string>
+    <string name="report_error_category_required">اختر نوع المشكلة.</string>
+    <string name="report_error_description_required">اكتب وصف المشكلة قبل المتابعة.</string>
+    <string name="report_error_email_app_unavailable">لا يوجد تطبيق بريد متاح لتجهيز البلاغ.</string>
+
+    <string name="report_email_subject">بلاغ عن مشكلة في Keyboard X: %1$s</string>
+    <string name="report_email_body">بلاغ عن مشكلة في Keyboard X\n\nالاسم: %1$s\nبريد التواصل: %2$s\nنوع المشكلة: %3$s\n\nوصف المشكلة:\n%4$s</string>
+</resources>
