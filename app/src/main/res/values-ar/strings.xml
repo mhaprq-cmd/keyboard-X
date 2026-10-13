@@ -89,7 +89,8 @@
     <string name="action_close">إغلاق</string>
     <string name="action_done">تم</string>
     <string name="selection_saved">تم حفظ اختيارك.</string>
-<!-- First-launch welcome -->
+
+    <!-- First-launch welcome -->
     <string name="welcome_title">مرحبًا بك في Keyboard X</string>
     <string name="welcome_message">لوحة مفاتيحك على وشك أن تصبح جاهزة. فعّل Keyboard X من إعدادات أندرويد، ثم اخترها لوحة المفاتيح الافتراضية لبدء الكتابة.</string>
     <string name="welcome_later">ربما لاحقًا</string>
@@ -125,7 +126,7 @@
     <string name="support_faq_privacy_a">راجع سياسة الخصوصية المنشورة لمعرفة السلوك الفعلي للإصدار المثبّت. ويجب أن تتوافق السياسة مع الكود الفعلي وأي ميزات تستخدم الشبكة.</string>
     <string name="support_contact_title">التواصل مع الدعم</string>
     <string name="support_contact_body">للحصول على المساعدة، تواصل مع فريق دعم Keyboard X عبر البريد الإلكتروني.</string>
-    <string name="support_email_address">dhmlpy@gmail.com</string>
+    <string name="support_email_address">dmolgax@gmail.com</string>
     <string name="support_report_issue">الإبلاغ عن مشكلة</string>
     <string name="about_legal_notice">معلومات الخصوصية والشروط والدعم</string>
 </resources>
