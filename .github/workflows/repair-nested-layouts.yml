@@ -1,10 +1,13 @@
-name: Repair Nested Layout Paths
+name: Repair Nested Layout and Workflow Paths
+
+# KEYBOARD_X_NESTED_PATH_REPAIR_V2
 
 on:
   workflow_dispatch:
   push:
     paths:
       - "app/src/main/res/layout/app/src/main/res/layout/**"
+      - ".github/workflows/.github/workflows/**"
       - ".github/workflows/repair-nested-layouts.yml"
 
 permissions:
@@ -20,64 +23,90 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Repair nested layout files safely
+      - name: Repair nested layout and workflow paths safely
         shell: bash
         run: |
           set -euo pipefail
 
-          nested="app/src/main/res/layout/app/src/main/res/layout"
-          correct="app/src/main/res/layout"
+          nested_layout="app/src/main/res/layout/app/src/main/res/layout"
+          correct_layout="app/src/main/res/layout"
+
+          nested_workflows=".github/workflows/.github/workflows"
+          correct_workflows=".github/workflows"
+
           changed=0
 
-          if [[ ! -d "$nested" ]]; then
-            echo "No nested layout directory found."
-            exit 0
-          fi
+          repair_tree() {
+            local nested="$1"
+            local correct="$2"
+            local source relative target
 
-          while IFS= read -r -d '' source; do
-            relative="${source#"$nested"/}"
-            target="$correct/$relative"
-
-            mkdir -p "$(dirname "$target")"
-
-            if [[ -e "$target" ]]; then
-              if cmp -s -- "$source" "$target"; then
-                rm -- "$source"
-                echo "Verified identical copy; removed nested file: $source"
-                changed=1
-              else
-                echo "::warning::Files differ; preserving both: $source and $target"
-              fi
-            else
-              cp -- "$source" "$target"
-
-              if cmp -s -- "$source" "$target"; then
-                rm -- "$source"
-                echo "Verified recovery and removed nested copy: $source"
-                changed=1
-              else
-                echo "::error::Verification failed for $source"
-                exit 1
-              fi
+            if [[ ! -d "$nested" ]]; then
+              echo "No nested directory found: $nested"
+              return 0
             fi
-          done < <(find "$nested" -type f -print0)
+
+            while IFS= read -r -d '' source; do
+              relative="${source#"$nested"/}"
+              target="$correct/$relative"
+
+              mkdir -p "$(dirname "$target")"
+
+              if [[ -e "$target" ]]; then
+                if cmp -s -- "$source" "$target"; then
+                  rm -- "$source"
+                  echo "Removed verified duplicate: $source"
+                  changed=1
+
+                elif [[ "$source" == "$nested_workflows/repair-nested-layouts.yml" \
+                  && "$target" == "$correct_workflows/repair-nested-layouts.yml" ]] \
+                  && grep -Fq "# KEYBOARD_X_NESTED_PATH_REPAIR_V2" "$target"; then
+
+                  rm -- "$source"
+                  echo "Removed superseded nested workflow copy: $source"
+                  changed=1
+
+                else
+                  echo "::warning::Different files detected; preserving both:"
+                  echo "Nested: $source"
+                  echo "Target: $target"
+                fi
+              else
+                cp -- "$source" "$target"
+
+                if cmp -s -- "$source" "$target"; then
+                  rm -- "$source"
+                  echo "Recovered file and removed nested copy: $source"
+                  changed=1
+                else
+                  echo "::error::Verification failed for $source"
+                  exit 1
+                fi
+              fi
+            done < <(find "$nested" -type f -print0)
+
+            find "$nested" -depth -type d -empty -delete
+          }
+
+          repair_tree "$nested_layout" "$correct_layout"
+          repair_tree "$nested_workflows" "$correct_workflows"
 
           if [[ "$changed" -eq 0 ]]; then
-            echo "No safe repairs were needed."
+            echo "No safe path repairs were needed."
             exit 0
           fi
 
-          find "$nested" -depth -type d -empty -delete
-
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add -A -- "$correct" "$nested"
+          git add -A
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "Repair nested layout paths safely"
+          git commit -m "Repair nested layout and workflow paths"
           git push
+          
