@@ -1,4 +1,3 @@
-
 name: Android CI
 
 on:
@@ -30,11 +29,9 @@ jobs:
           set -euo pipefail
 
           if [ ! -f gradlew ]; then
-            echo "::error::The gradlew file is missing from the repository."
+            echo "::error::gradlew is missing."
             exit 1
           fi
-
-          chmod +x gradlew
 
           if [ ! -f gradle/wrapper/gradle-wrapper.properties ]; then
             echo "::error::Gradle wrapper properties are missing."
@@ -42,18 +39,26 @@ jobs:
           fi
 
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "::error::gradle-wrapper.jar is missing. Restore the official Gradle Wrapper files in the repository."
+            echo "::error::gradle-wrapper.jar is missing."
             exit 1
           fi
 
+          chmod +x gradlew
           ./gradlew --version
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Install Android SDK packages
+        shell: bash
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          set -euo pipefail
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
       - name: Build debug APK for pull requests
         if: github.event_name == 'pull_request'
@@ -87,7 +92,7 @@ jobs:
           chmod 600 "$KEYSTORE_PATH"
 
           if [ ! -s "$KEYSTORE_PATH" ]; then
-            echo "::error::The decoded keystore file is empty."
+            echo "::error::The decoded keystore is empty."
             exit 1
           fi
 
@@ -98,8 +103,7 @@ jobs:
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: keyboardx-release
-        run: |
-          ./gradlew --no-daemon :app:assembleRelease
+        run: ./gradlew --no-daemon :app:assembleRelease
 
       - name: Verify release APK signature
         if: github.event_name == 'push'
