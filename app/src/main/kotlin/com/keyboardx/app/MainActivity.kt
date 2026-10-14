@@ -1,19 +1,29 @@
 package com.keyboardx.app
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var mainRoot: LinearLayout
+    private lateinit var mainScrollView: ScrollView
+    private lateinit var bottomNavigation: LinearLayout
 
     private lateinit var homeScreen: LinearLayout
     private lateinit var languagesScreen: LinearLayout
@@ -31,6 +41,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var languageArabicSelected: TextView
     private lateinit var languageEnglishSelected: TextView
 
+    private var activePageView: View? = null
+    private var currentScreen = SCREEN_HOME
+    private var soundEnabled = false
+
     private val preferences by lazy {
         getSharedPreferences(
             LANGUAGE_PREFERENCES,
@@ -47,17 +61,19 @@ class MainActivity : AppCompatActivity() {
             R.color.app_text_secondary
         )
 
-    private var currentScreen = SCREEN_HOME
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         bindViews()
+        initializeDefaultLanguage()
         setupNavigation()
         setupKeyboardActions()
         setupShortcuts()
         setupLanguageSelection()
+        setupSettingsActions()
+        addInformationAndSupportLinks()
+        refreshSoundStatus()
 
         showScreen(
             savedInstanceState?.getString(KEY_CURRENT_SCREEN)
@@ -83,12 +99,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if (activePageView != null) {
+            closeInformationPage()
+            return
+        }
+
+        if (currentScreen != SCREEN_HOME) {
+            showScreen(SCREEN_HOME)
+            return
+        }
+
+        super.onBackPressed()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(KEY_CURRENT_SCREEN, currentScreen)
         super.onSaveInstanceState(outState)
     }
 
     private fun bindViews() {
+        mainRoot = findViewById(R.id.mainRoot)
+        mainScrollView = mainRoot.getChildAt(0) as ScrollView
+        bottomNavigation = findViewById(R.id.bottomNavigation)
+
         homeScreen = findViewById(R.id.homeScreen)
         languagesScreen = findViewById(R.id.languagesScreen)
         appearanceScreen = findViewById(R.id.appearanceScreen)
@@ -113,6 +147,26 @@ class MainActivity : AppCompatActivity() {
 
         languageEnglishSelected =
             findViewById(R.id.languageEnglishSelected)
+    }
+
+    private fun initializeDefaultLanguage() {
+        if (preferences.contains(KEY_ACTIVE_LANGUAGE)) {
+            return
+        }
+
+        val deviceLanguage = resources.configuration.locales
+            .get(0)
+            .language
+
+        val initialLanguage = if (deviceLanguage == "ar") {
+            LANGUAGE_ARABIC
+        } else {
+            LANGUAGE_ENGLISH
+        }
+
+        preferences.edit()
+            .putString(KEY_ACTIVE_LANGUAGE, initialLanguage)
+            .apply()
     }
 
     private fun setupNavigation() {
@@ -169,6 +223,222 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSettingsActions() {
+        val soundButton =
+            findViewById<Button>(R.id.soundToggleButton)
+
+        soundEnabled = preferences.getBoolean(
+            KEY_SOUND_ENABLED,
+            false
+        )
+
+        soundButton.setOnClickListener {
+            soundEnabled = !soundEnabled
+
+            preferences.edit()
+                .putBoolean(KEY_SOUND_ENABLED, soundEnabled)
+                .apply()
+
+            refreshSoundStatus()
+        }
+    }
+
+    private fun addInformationAndSupportLinks() {
+        addSettingsLink(
+            title = getString(R.string.about_title),
+            description = getString(R.string.version_label) + " 0.1.0"
+        ) {
+            openInformationPage(R.layout.fragment_about, PAGE_ABOUT)
+        }
+
+        addSettingsLink(
+            title = getString(R.string.support_page_title),
+            description = getString(R.string.support_page_intro)
+        ) {
+            openInformationPage(
+                R.layout.fragment_support,
+                PAGE_SUPPORT
+            )
+        }
+
+        addSettingsLink(
+            title = getString(R.string.privacy_full_title),
+            description = getString(R.string.privacy_full_intro)
+        ) {
+            openInformationPage(
+                R.layout.fragment_privacy,
+                PAGE_PRIVACY
+            )
+        }
+
+        addSettingsLink(
+            title = getString(R.string.terms_full_title),
+            description = getString(R.string.terms_full_intro)
+        ) {
+            openInformationPage(
+                R.layout.fragment_terms,
+                PAGE_TERMS
+            )
+        }
+
+        addSettingsLink(
+            title = getString(R.string.ip_page_title),
+            description = getString(R.string.ip_page_intro)
+        ) {
+            openInformationPage(
+                R.layout.fragment_intellectual_property,
+                PAGE_INTELLECTUAL_PROPERTY
+            )
+        }
+    }
+
+    private fun addSettingsLink(
+        title: String,
+        description: String,
+        action: () -> Unit
+    ) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(18), dp(16), dp(18), dp(16))
+            background = ContextCompat.getDrawable(
+                this@MainActivity,
+                R.drawable.app_card_background
+            )
+            isClickable = true
+            isFocusable = true
+            contentDescription = title
+            setOnClickListener { action() }
+        }
+
+        val titleView = TextView(this).apply {
+            text = title
+            setTextColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.app_text_primary
+                )
+            )
+            textSize = 16f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }
+
+        val descriptionView = TextView(this).apply {
+            text = description
+            setTextColor(inactiveColor)
+            textSize = 13f
+            setLineSpacing(dp(2).toFloat(), 1f)
+            setPadding(0, dp(6), 0, 0)
+            maxLines = 3
+        }
+
+        card.addView(titleView)
+        card.addView(descriptionView)
+
+        val params = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            bottomMargin = dp(12)
+        }
+
+        settingsScreen.addView(card, params)
+    }
+
+    private fun openInformationPage(
+        layoutResource: Int,
+        pageName: String
+    ) {
+        closeInformationPage()
+
+        val page = LayoutInflater.from(this)
+            .inflate(layoutResource, mainRoot, false)
+
+        activePageView = page
+        currentScreen = pageName
+
+        mainScrollView.visibility = View.GONE
+        bottomNavigation.visibility = View.GONE
+
+        val pageParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            0,
+            1f
+        )
+
+        mainRoot.addView(page, 0, pageParams)
+
+        when (pageName) {
+            PAGE_SUPPORT -> setupSupportPage(page)
+            PAGE_ABOUT -> setupBackButton(page, R.id.aboutBackText)
+            PAGE_PRIVACY -> setupBackButton(page, R.id.privacyBackText)
+            PAGE_TERMS -> setupBackButton(page, R.id.termsBackText)
+            PAGE_INTELLECTUAL_PROPERTY -> setupBackButton(
+                page,
+                R.id.intellectualPropertyBackText
+            )
+        }
+    }
+    
+    private fun setupSupportPage(page: View) {
+        setupBackButton(page, R.id.supportBackText)
+
+        page.findViewById<TextView>(R.id.supportEmailAddress)
+            ?.setOnClickListener {
+                openSupportEmail()
+            }
+
+        page.findViewById<TextView>(R.id.supportReportIssueText)
+            ?.setOnClickListener {
+                try {
+                    startActivity(
+                        Intent(
+                            this,
+                            ReportIssueActivity::class.java
+                        )
+                    )
+                } catch (_: ActivityNotFoundException) {
+                    showMessage(R.string.report_error_email_app_unavailable)
+                }
+            }
+    }
+
+    private fun setupBackButton(page: View, viewId: Int) {
+        page.findViewById<TextView>(viewId)
+            ?.setOnClickListener {
+                closeInformationPage()
+            }
+    }
+
+    private fun closeInformationPage() {
+        val page = activePageView ?: return
+
+        mainRoot.removeView(page)
+        activePageView = null
+
+        mainScrollView.visibility = View.VISIBLE
+        bottomNavigation.visibility = View.VISIBLE
+
+        showScreen(SCREEN_SETTINGS)
+    }
+
+    private fun openSupportEmail() {
+        val emailIntent = Intent(
+            Intent.ACTION_SENDTO,
+            Uri.parse("mailto:$SUPPORT_EMAIL")
+        ).apply {
+            putExtra(
+                Intent.EXTRA_SUBJECT,
+                getString(R.string.app_name) + " - Support"
+            )
+        }
+
+        try {
+            startActivity(emailIntent)
+        } catch (_: ActivityNotFoundException) {
+            showMessage(R.string.report_error_email_app_unavailable)
+        }
+    }
+
     private fun savePreferredLanguage(language: String) {
         preferences.edit()
             .putString(KEY_ACTIVE_LANGUAGE, language)
@@ -214,12 +484,32 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun refreshSoundStatus() {
+        val status = findViewById<TextView>(R.id.soundStatus)
+        val button = findViewById<Button>(R.id.soundToggleButton)
+
+        status.setText(
+            if (soundEnabled) {
+                R.string.sound_enabled
+            } else {
+                R.string.sound_disabled
+            }
+        )
+
+        button.setText(
+            if (soundEnabled) {
+                R.string.sound_disabled
+            } else {
+                R.string.sound_enabled
+            }
+        )
+    }
+
     private fun showFirstLaunchWelcomeDialogIfNeeded() {
         if (preferences.getBoolean(KEY_WELCOME_SHOWN, false)) {
             return
         }
 
-        // Save the flag before showing the dialog to prevent repeats.
         preferences.edit()
             .putBoolean(KEY_WELCOME_SHOWN, true)
             .apply()
@@ -251,51 +541,31 @@ class MainActivity : AppCompatActivity() {
         currentScreen = targetScreen
 
         homeScreen.visibility =
-            if (targetScreen == SCREEN_HOME) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            if (targetScreen == SCREEN_HOME) View.VISIBLE else View.GONE
 
         languagesScreen.visibility =
-            if (targetScreen == SCREEN_LANGUAGES) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            if (targetScreen == SCREEN_LANGUAGES) View.VISIBLE else View.GONE
 
         appearanceScreen.visibility =
-            if (targetScreen == SCREEN_APPEARANCE) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            if (targetScreen == SCREEN_APPEARANCE) View.VISIBLE else View.GONE
 
         settingsScreen.visibility =
-            if (targetScreen == SCREEN_SETTINGS) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            if (targetScreen == SCREEN_SETTINGS) View.VISIBLE else View.GONE
 
         navHome.setTextColor(
-            if (targetScreen == SCREEN_HOME) activeColor
-            else inactiveColor
+            if (targetScreen == SCREEN_HOME) activeColor else inactiveColor
         )
 
         navLanguages.setTextColor(
-            if (targetScreen == SCREEN_LANGUAGES) activeColor
-            else inactiveColor
+            if (targetScreen == SCREEN_LANGUAGES) activeColor else inactiveColor
         )
 
         navAppearance.setTextColor(
-            if (targetScreen == SCREEN_APPEARANCE) activeColor
-            else inactiveColor
+            if (targetScreen == SCREEN_APPEARANCE) activeColor else inactiveColor
         )
 
         navSettings.setTextColor(
-            if (targetScreen == SCREEN_SETTINGS) activeColor
-            else inactiveColor
+            if (targetScreen == SCREEN_SETTINGS) activeColor else inactiveColor
         )
 
         navHome.isSelected = targetScreen == SCREEN_HOME
@@ -313,12 +583,13 @@ class MainActivity : AppCompatActivity() {
             getSystemService(Context.INPUT_METHOD_SERVICE)
                 as InputMethodManager
 
+        val serviceName = "$packageName.ime.KeyboardIMEService"
+
         val isEnabled = inputMethodManager
             .enabledInputMethodList
             .any { inputMethod ->
                 inputMethod.packageName == packageName &&
-                    inputMethod.serviceName ==
-                    "$packageName.ime.KeyboardIMEService"
+                    inputMethod.serviceName == serviceName
             }
 
         val selectedMethod = Settings.Secure.getString(
@@ -327,10 +598,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         val isSelected =
-            isEnabled &&
-                selectedMethod?.contains(
-                    "$packageName.ime.KeyboardIMEService"
-                ) == true
+            isEnabled && selectedMethod?.contains(serviceName) == true
 
         keyboardEnabledStatus.setText(
             when {
@@ -350,30 +618,42 @@ class MainActivity : AppCompatActivity() {
             startActivity(
                 Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
             )
-        } catch (_: Exception) {
-            startActivity(
-                Intent(Settings.ACTION_SETTINGS)
-            )
+        } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     }
 
     private fun showKeyboardPicker() {
-        val inputMethodManager =
-            getSystemService(Context.INPUT_METHOD_SERVICE)
-                as InputMethodManager
+        try {
+            val inputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE)
+                    as InputMethodManager
 
-        inputMethodManager.showInputMethodPicker()
+            inputMethodManager.showInputMethodPicker()
+        } catch (_: Exception) {
+            showMessage(R.string.keyboard_not_enabled)
+        }
+    }
+
+    private fun showMessage(messageResource: Int) {
+        Toast.makeText(
+            this,
+            messageResource,
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
     }
 
     companion object {
         private const val LANGUAGE_PREFERENCES =
             "keyboard_x_preferences"
 
-        private const val KEY_ACTIVE_LANGUAGE =
-            "active_language"
-
-        private const val KEY_WELCOME_SHOWN =
-            "welcome_dialog_shown"
+        private const val KEY_ACTIVE_LANGUAGE = "active_language"
+        private const val KEY_WELCOME_SHOWN = "welcome_dialog_shown"
+        private const val KEY_SOUND_ENABLED = "sound_enabled"
 
         private const val LANGUAGE_ARABIC = "ARABIC"
         private const val LANGUAGE_ENGLISH = "ENGLISH"
@@ -384,5 +664,14 @@ class MainActivity : AppCompatActivity() {
         private const val SCREEN_LANGUAGES = "languages"
         private const val SCREEN_APPEARANCE = "appearance"
         private const val SCREEN_SETTINGS = "settings"
+
+        private const val PAGE_ABOUT = "page_about"
+        private const val PAGE_SUPPORT = "page_support"
+        private const val PAGE_PRIVACY = "page_privacy"
+        private const val PAGE_TERMS = "page_terms"
+        private const val PAGE_INTELLECTUAL_PROPERTY =
+            "page_intellectual_property"
+
+        private const val SUPPORT_EMAIL = "dmolgax@gmail.com"
     }
 }
