@@ -1,0 +1,56 @@
+name: Generate Android Signing Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-signing-key:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Generate protected signing key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "Missing KEYSTORE_PASSWORD secret."
+            exit 1
+          fi
+
+          mkdir -p signing-output
+
+          keytool -genkeypair \
+            -noprompt \
+            -storetype JKS \
+            -keystore signing-output/keyboardx-release.jks \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEYSTORE_PASSWORD" \
+            -alias keyboardx-release \
+            -keyalg RSA \
+            -keysize 3072 \
+            -validity 10000 \
+            -dname "CN=Keyboard X, O=Keyboard X, L=Cairo, ST=Cairo, C=EG"
+
+          keytool -list \
+            -keystore signing-output/keyboardx-release.jks \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias keyboardx-release
+
+      - name: Upload signing key
+        uses: actions/upload-artifact@v6
+        with:
+          name: keyboardx-signing-key
+          path: signing-output/keyboardx-release.jks
+          retention-days: 1
+          if-no-files-found: error
