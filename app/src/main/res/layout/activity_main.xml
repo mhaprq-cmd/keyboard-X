@@ -23,7 +23,6 @@
             android:paddingTop="24dp"
             android:paddingBottom="20dp">
 
-            <!-- App header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,7 +46,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Home screen -->
             <LinearLayout
                 android:id="@+id/homeScreen"
                 android:layout_width="match_parent"
@@ -64,7 +62,6 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="20dp" />
 
-                <!-- Keyboard status card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -112,7 +109,6 @@
                         android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
 
-                <!-- Quick settings -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -178,7 +174,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Languages screen -->
             <LinearLayout
                 android:id="@+id/languagesScreen"
                 android:layout_width="match_parent"
@@ -337,8 +332,7 @@
                     android:padding="14dp"
                     android:background="@drawable/app_card_background" />
             </LinearLayout>
-            
-            <!-- Appearance screen -->
+
             <LinearLayout
                 android:id="@+id/appearanceScreen"
                 android:layout_width="match_parent"
@@ -405,8 +399,7 @@
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
             </LinearLayout>
-
-            <!-- Settings screen -->
+            
             <LinearLayout
                 android:id="@+id/settingsScreen"
                 android:layout_width="match_parent"
@@ -423,16 +416,110 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="18dp" />
 
+                <LinearLayout
+                    android:id="@+id/settingsPreferencesCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:background="@drawable/app_card_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="الضبط"
+                            android:textColor="@color/app_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="الأصوات والإعدادات العامة"
+                            android:textColor="@color/app_text_secondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="›"
+                        android:textColor="@color/app_text_secondary"
+                        android:textSize="26sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/settingsAppLanguagesCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:background="@drawable/app_card_background"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="اللغات"
+                            android:textColor="@color/app_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="لغة واجهة تطبيق Keyboard X"
+                            android:textColor="@color/app_text_secondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="›"
+                        android:textColor="@color/app_text_secondary"
+                        android:textSize="26sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/preferencesScreen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="الضبط"
                     android:textColor="@color/app_text_primary"
-                    android:textSize="18sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="18dp" />
 
-                <!-- Keypress sound card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="76dp"
@@ -480,10 +567,93 @@
                         android:textColor="@color/app_accent"
                         android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
+            </LinearLayout>
 
-                <!-- App language card -->
+            <LinearLayout
+                android:id="@+id/appLanguagesScreen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="لغات واجهة التطبيق"
+                    android:textColor="@color/app_text_primary"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="اختر اللغة التي تظهر بها قوائم التطبيق وصفحاته."
+                    android:textColor="@color/app_text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="16dp" />
+
                 <LinearLayout
-                    android:id="@+id/appLanguageCard"
+                    android:id="@+id/appLanguageArabicCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:background="@drawable/app_card_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:gravity="center"
+                        android:text="ع"
+                        android:textColor="@color/app_accent"
+                        android:textSize="23sp"
+                        android:textStyle="bold"
+                        android:background="@color/app_accent_soft" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="8dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="العربية"
+                            android:textColor="@color/app_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="واجهة التطبيق باللغة العربية"
+                            android:textColor="@color/app_text_secondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/appLanguageArabicSelected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓"
+                        android:textColor="@color/app_accent"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/appLanguageEnglishCard"
                     android:layout_width="match_parent"
                     android:layout_height="76dp"
                     android:orientation="horizontal"
@@ -494,16 +664,28 @@
                     android:clickable="true"
                     android:focusable="true">
 
+                    <TextView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:gravity="center"
+                        android:text="EN"
+                        android:textColor="@color/app_accent"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:background="@color/app_accent_soft" />
+
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="8dp">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/language_title"
+                            android:text="English"
                             android:textColor="@color/app_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -511,25 +693,26 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="لغة واجهة التطبيق"
+                            android:text="App interface in English"
                             android:textColor="@color/app_text_secondary"
                             android:textSize="12sp"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/appLanguageEnglishSelected"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="›"
-                        android:textColor="@color/app_text_secondary"
-                        android:textSize="26sp" />
+                        android:text="✓"
+                        android:textColor="@color/app_accent"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </LinearLayout>
-
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom navigation -->
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
@@ -589,3 +772,4 @@
             android:focusable="true" />
     </LinearLayout>
 </LinearLayout>
+            
