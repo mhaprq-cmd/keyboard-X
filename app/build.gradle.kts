@@ -1,7 +1,12 @@
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+val keystorePath = System.getenv("KEYSTORE_PATH")
+val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+val keystoreAlias = System.getenv("KEYSTORE_ALIAS") ?: "keyboardx-release"
 
 android {
     namespace = "com.keyboardx.app"
@@ -17,9 +22,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (!keystorePath.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+            }
+
+            if (!keystorePassword.isNullOrBlank()) {
+                storePassword = keystorePassword
+                keyPassword = keystorePassword
+            }
+
+            keyAlias = keystoreAlias
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+
+            if (
+                !keystorePath.isNullOrBlank() &&
+                !keystorePassword.isNullOrBlank()
+            ) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
