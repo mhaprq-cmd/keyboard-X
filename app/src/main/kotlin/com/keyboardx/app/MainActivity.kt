@@ -17,7 +17,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +32,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var languagesScreen: LinearLayout
     private lateinit var appearanceScreen: LinearLayout
     private lateinit var settingsScreen: LinearLayout
+    private lateinit var preferencesScreen: LinearLayout
+    private lateinit var appLanguagesScreen: LinearLayout
+
+    private lateinit var settingsPreferencesCard: LinearLayout
+    private lateinit var settingsAppLanguagesCard: LinearLayout
+
+    private lateinit var appLanguageArabicCard: LinearLayout
+    private lateinit var appLanguageEnglishCard: LinearLayout
+    private lateinit var appLanguageArabicSelected: TextView
+    private lateinit var appLanguageEnglishSelected: TextView
 
     private lateinit var navHome: TextView
     private lateinit var navLanguages: TextView
@@ -71,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         setupKeyboardActions()
         setupShortcuts()
         setupLanguageSelection()
+        setupAppLanguageSelection()
         setupSettingsActions()
         addInformationAndSupportLinks()
         refreshSoundStatus()
@@ -81,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         refreshLanguageSelection()
+        refreshAppLanguageSelection()
 
         if (savedInstanceState == null) {
             showFirstLaunchWelcomeDialogIfNeeded()
@@ -97,17 +112,32 @@ class MainActivity : AppCompatActivity() {
         if (::languageArabicCard.isInitialized) {
             refreshLanguageSelection()
         }
+
+        if (::appLanguageArabicCard.isInitialized) {
+            refreshAppLanguageSelection()
+        }
     }
 
+    @Suppress("DEPRECATION")
     override fun onBackPressed() {
         if (activePageView != null) {
             closeInformationPage()
             return
         }
 
-        if (currentScreen != SCREEN_HOME) {
-            showScreen(SCREEN_HOME)
-            return
+        when (currentScreen) {
+            SCREEN_PREFERENCES,
+            SCREEN_APP_LANGUAGES -> {
+                showScreen(SCREEN_SETTINGS)
+                return
+            }
+
+            SCREEN_SETTINGS,
+            SCREEN_LANGUAGES,
+            SCREEN_APPEARANCE -> {
+                showScreen(SCREEN_HOME)
+                return
+            }
         }
 
         super.onBackPressed()
@@ -127,6 +157,26 @@ class MainActivity : AppCompatActivity() {
         languagesScreen = findViewById(R.id.languagesScreen)
         appearanceScreen = findViewById(R.id.appearanceScreen)
         settingsScreen = findViewById(R.id.settingsScreen)
+        preferencesScreen = findViewById(R.id.preferencesScreen)
+        appLanguagesScreen = findViewById(R.id.appLanguagesScreen)
+
+        settingsPreferencesCard =
+            findViewById(R.id.settingsPreferencesCard)
+
+        settingsAppLanguagesCard =
+            findViewById(R.id.settingsAppLanguagesCard)
+
+        appLanguageArabicCard =
+            findViewById(R.id.appLanguageArabicCard)
+
+        appLanguageEnglishCard =
+            findViewById(R.id.appLanguageEnglishCard)
+
+        appLanguageArabicSelected =
+            findViewById(R.id.appLanguageArabicSelected)
+
+        appLanguageEnglishSelected =
+            findViewById(R.id.appLanguageEnglishSelected)
 
         navHome = findViewById(R.id.navHome)
         navLanguages = findViewById(R.id.navLanguages)
@@ -185,6 +235,14 @@ class MainActivity : AppCompatActivity() {
         navSettings.setOnClickListener {
             showScreen(SCREEN_SETTINGS)
         }
+
+        settingsPreferencesCard.setOnClickListener {
+            showScreen(SCREEN_PREFERENCES)
+        }
+
+        settingsAppLanguagesCard.setOnClickListener {
+            showScreen(SCREEN_APP_LANGUAGES)
+        }
     }
 
     private fun setupKeyboardActions() {
@@ -221,6 +279,77 @@ class MainActivity : AppCompatActivity() {
             savePreferredLanguage(LANGUAGE_ENGLISH)
             refreshLanguageSelection()
         }
+    }
+
+    private fun setupAppLanguageSelection() {
+        appLanguageArabicCard.setOnClickListener {
+            setAppLanguage(LANGUAGE_ARABIC)
+        }
+
+        appLanguageEnglishCard.setOnClickListener {
+            setAppLanguage(LANGUAGE_ENGLISH)
+        }
+    }
+
+    private fun setAppLanguage(language: String) {
+        val languageTag = when (language) {
+            LANGUAGE_ARABIC -> "ar"
+            else -> "en"
+        }
+
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        val currentTag = currentLocales.toLanguageTags()
+
+        if (currentTag == languageTag) {
+            refreshAppLanguageSelection()
+            return
+        }
+
+        AppCompatDelegate.setApplicationLocales(
+            LocaleListCompat.forLanguageTags(languageTag)
+        )
+    }
+
+    private fun refreshAppLanguageSelection() {
+        val configuredLocales =
+            AppCompatDelegate.getApplicationLocales()
+
+        val selectedLanguage = if (configuredLocales.isEmpty) {
+            Locale.getDefault().language
+        } else {
+            configuredLocales[0]?.language ?: "en"
+        }
+
+        val isArabicSelected = selectedLanguage == "ar"
+
+        appLanguageArabicSelected.visibility =
+            if (isArabicSelected) View.VISIBLE else View.GONE
+
+        appLanguageEnglishSelected.visibility =
+            if (isArabicSelected) View.GONE else View.VISIBLE
+
+        appLanguageArabicCard.isSelected = isArabicSelected
+        appLanguageEnglishCard.isSelected = !isArabicSelected
+
+        appLanguageArabicCard.alpha =
+            if (isArabicSelected) 1.0f else 0.78f
+
+        appLanguageEnglishCard.alpha =
+            if (isArabicSelected) 0.78f else 1.0f
+
+        appLanguageArabicCard.contentDescription =
+            if (isArabicSelected) {
+                "العربية، لغة واجهة التطبيق المحددة"
+            } else {
+                "العربية، اختيار لغة واجهة التطبيق"
+            }
+
+        appLanguageEnglishCard.contentDescription =
+            if (!isArabicSelected) {
+                "English, selected app interface language"
+            } else {
+                "English, choose app interface language"
+            }
     }
 
     private fun setupSettingsActions() {
@@ -452,7 +581,7 @@ class MainActivity : AppCompatActivity() {
             showMessage(R.string.report_error_email_app_unavailable)
         }
     }
-
+    
     private fun savePreferredLanguage(language: String) {
         preferences.edit()
             .putString(KEY_ACTIVE_LANGUAGE, language)
@@ -547,7 +676,9 @@ class MainActivity : AppCompatActivity() {
             SCREEN_HOME,
             SCREEN_LANGUAGES,
             SCREEN_APPEARANCE,
-            SCREEN_SETTINGS -> screen
+            SCREEN_SETTINGS,
+            SCREEN_PREFERENCES,
+            SCREEN_APP_LANGUAGES -> screen
 
             else -> SCREEN_HOME
         }
@@ -566,6 +697,22 @@ class MainActivity : AppCompatActivity() {
         settingsScreen.visibility =
             if (targetScreen == SCREEN_SETTINGS) View.VISIBLE else View.GONE
 
+        preferencesScreen.visibility =
+            if (targetScreen == SCREEN_PREFERENCES) View.VISIBLE else View.GONE
+
+        appLanguagesScreen.visibility =
+            if (targetScreen == SCREEN_APP_LANGUAGES) View.VISIBLE else View.GONE
+
+        val isMainTab = targetScreen in setOf(
+            SCREEN_HOME,
+            SCREEN_LANGUAGES,
+            SCREEN_APPEARANCE,
+            SCREEN_SETTINGS
+        )
+
+        bottomNavigation.visibility =
+            if (isMainTab) View.VISIBLE else View.GONE
+
         navHome.setTextColor(
             if (targetScreen == SCREEN_HOME) activeColor else inactiveColor
         )
@@ -579,16 +726,35 @@ class MainActivity : AppCompatActivity() {
         )
 
         navSettings.setTextColor(
-            if (targetScreen == SCREEN_SETTINGS) activeColor else inactiveColor
+            if (
+                targetScreen == SCREEN_SETTINGS ||
+                targetScreen == SCREEN_PREFERENCES ||
+                targetScreen == SCREEN_APP_LANGUAGES
+            ) {
+                activeColor
+            } else {
+                inactiveColor
+            }
         )
 
         navHome.isSelected = targetScreen == SCREEN_HOME
         navLanguages.isSelected = targetScreen == SCREEN_LANGUAGES
         navAppearance.isSelected = targetScreen == SCREEN_APPEARANCE
-        navSettings.isSelected = targetScreen == SCREEN_SETTINGS
+        navSettings.isSelected =
+            targetScreen == SCREEN_SETTINGS ||
+                targetScreen == SCREEN_PREFERENCES ||
+                targetScreen == SCREEN_APP_LANGUAGES
 
         if (targetScreen == SCREEN_LANGUAGES) {
             refreshLanguageSelection()
+        }
+
+        if (targetScreen == SCREEN_APP_LANGUAGES) {
+            refreshAppLanguageSelection()
+        }
+
+        mainScrollView.post {
+            mainScrollView.scrollTo(0, 0)
         }
     }
 
@@ -678,6 +844,8 @@ class MainActivity : AppCompatActivity() {
         private const val SCREEN_LANGUAGES = "languages"
         private const val SCREEN_APPEARANCE = "appearance"
         private const val SCREEN_SETTINGS = "settings"
+        private const val SCREEN_PREFERENCES = "preferences"
+        private const val SCREEN_APP_LANGUAGES = "app_languages"
 
         private const val PAGE_ABOUT = "page_about"
         private const val PAGE_SUPPORT = "page_support"
