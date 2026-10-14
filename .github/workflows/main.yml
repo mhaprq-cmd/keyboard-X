@@ -57,7 +57,6 @@ jobs:
           fi
 
           test -f ./gradle/wrapper/gradle-wrapper.jar
-
           chmod +x ./gradlew
 
       - name: Set up Android SDK
@@ -70,15 +69,70 @@ jobs:
             "platforms;android-35" \
             "build-tools;35.0.0"
 
-      - name: Build debug APK with Gradle
-        run: |
-          set -e
-          ./gradlew assembleDebug
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
 
       - name: Upload debug APK
-        if: success()
         uses: actions/upload-artifact@v6
         with:
           name: keyboardx-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Prepare release signing key
+        if: github.event_name == 'push'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -e
+
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::Missing KEYSTORE_BASE64 or KEYSTORE_PASSWORD repository secret."
+            exit 1
+          fi
+
+          KEYSTORE_PATH="$RUNNER_TEMP/keyboardx-release.jks"
+
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+
+          test -s "$KEYSTORE_PATH"
+
+          keytool -list \
+            -storetype JKS \
+            -keystore "$KEYSTORE_PATH" \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias keyboardx-release
+
+          echo "KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+          echo "KEYSTORE_ALIAS=keyboardx-release" >> "$GITHUB_ENV"
+
+      - name: Build signed release APK
+        if: github.event_name == 'push'
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/keyboardx-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: keyboardx-release
+        run: |
+          set -e
+
+          ./gradlew assembleRelease
+
+          test -s app/build/outputs/apk/release/app-release.apk
+
+      - name: Verify release APK signature
+        if: github.event_name == 'push'
+        run: |
+          set -e
+
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
+            --verbose \
+            app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload release APK
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v6
+        with:
+          name: keyboardx-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
           retention-days: 30
