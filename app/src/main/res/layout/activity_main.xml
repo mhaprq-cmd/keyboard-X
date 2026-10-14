@@ -337,7 +337,8 @@
                     android:padding="14dp"
                     android:background="@drawable/app_card_background" />
             </LinearLayout>
-                        <!-- Appearance screen -->
+            
+            <!-- Appearance screen -->
             <LinearLayout
                 android:id="@+id/appearanceScreen"
                 android:layout_width="match_parent"
@@ -420,93 +421,110 @@
                     android:textColor="@color/app_text_primary"
                     android:textSize="26sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="18dp" />
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp"
+                    android:text="الضبط"
+                    android:textColor="@color/app_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Keypress sound card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="12dp"
                     android:background="@drawable/app_card_background"
                     android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/sound_title"
-                        android:textColor="@color/app_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="8dp">
 
-                    <TextView
-                        android:id="@+id/soundStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sound_disabled"
-                        android:textColor="@color/app_text_secondary"
-                        android:textSize="13sp"
-                        android:layout_marginTop="6dp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sound_title"
+                            android:textColor="@color/app_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/soundStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sound_disabled"
+                            android:textColor="@color/app_text_secondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp"
+                            android:maxLines="1" />
+                    </LinearLayout>
 
                     <Button
                         android:id="@+id/soundToggleButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:minWidth="76dp"
                         android:text="@string/sound_title"
                         android:textAllCaps="false"
+                        android:textSize="12sp"
                         android:textColor="@color/app_accent"
                         android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
 
+                <!-- App language card -->
                 <LinearLayout
+                    android:id="@+id/appLanguageCard"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp"
+                    android:layout_height="76dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
                     android:background="@drawable/app_card_background"
-                    android:layout_marginBottom="12dp">
+                    android:clickable="true"
+                    android:focusable="true">
 
-                    <TextView
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/language_title"
-                        android:textColor="@color/app_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp"
-                    android:background="@drawable/app_card_background">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/language_title"
+                            android:textColor="@color/app_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/about_title"
-                        android:textColor="@color/app_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/version_label"
-                        android:textColor="@color/app_text_secondary"
-                        android:textSize="13sp"
-                        android:layout_marginTop="6dp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="لغة واجهة التطبيق"
+                            android:textColor="@color/app_text_secondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0.1.0"
-                        android:textColor="@color/app_accent"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp" />
+                        android:text="›"
+                        android:textColor="@color/app_text_secondary"
+                        android:textSize="26sp" />
                 </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
