@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Keyboard X</string>
@@ -5,13 +6,11 @@
     <string name="ime_description">A native Android keyboard supporting Arabic and English</string>
     <string name="activation_instructions">To enable this keyboard, go to Settings → Language &amp; input → Virtual keyboard → Manage keyboards and enable Keyboard X</string>
 
-    <!-- Main navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_languages">Languages</string>
     <string name="nav_appearance">Appearance</string>
     <string name="nav_settings">Settings</string>
 
-    <!-- Home screen -->
     <string name="home_greeting">Your keyboard, your style</string>
     <string name="home_subtitle">A smarter, more comfortable typing experience.</string>
     <string name="keyboard_status_title">Keyboard status</string>
@@ -23,7 +22,6 @@
     <string name="select_keyboard">Select keyboard</string>
     <string name="quick_settings">Quick settings</string>
 
-    <!-- Languages -->
     <string name="language_title">Languages</string>
     <string name="language_description">Choose the languages available on your keyboard.</string>
     <string name="default_language_title">Default keyboard language</string>
@@ -33,7 +31,6 @@
     <string name="language_selected">Selected</string>
     <string name="language_switch_hint">Switch between Arabic and English using the language key.</string>
 
-    <!-- Appearance -->
     <string name="appearance_title">Personalize your keyboard</string>
     <string name="appearance_subtitle">Make your typing experience feel like yours.</string>
     <string name="system_theme_title">App appearance</string>
@@ -57,9 +54,15 @@
     <string name="background_default">Default background</string>
     <string name="background_gradient">Gradient</string>
 
-    <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle">Control how your keyboard and app behave.</string>
+    <string name="settings_preferences_title">Preferences</string>
+    <string name="settings_preferences_description">Sound and general settings</string>
+    <string name="settings_app_languages_title">App languages</string>
+    <string name="settings_app_languages_description">Choose the Keyboard X interface language</string>
+    <string name="preferences_title">Preferences</string>
+    <string name="app_languages_title">App interface language</string>
+    <string name="app_languages_description">Choose the language used for app menus and pages.</string>
     <string name="sound_title">Keypress sound</string>
     <string name="sound_description">Play a sound when you press a key.</string>
     <string name="sound_enabled">Sound on</string>
@@ -82,7 +85,6 @@
     <string name="support_email">Support email</string>
     <string name="coming_soon">Coming soon</string>
 
-    <!-- Common actions -->
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_back">Back</string>
@@ -90,12 +92,10 @@
     <string name="action_done">Done</string>
     <string name="selection_saved">Your selection has been saved.</string>
 
-    <!-- First-launch welcome -->
     <string name="welcome_title">Welcome to Keyboard X</string>
     <string name="welcome_message">Your keyboard is almost ready. Enable Keyboard X in Android settings, then select it as your default keyboard to start typing.</string>
     <string name="welcome_later">Maybe later</string>
 
-    <!-- Privacy and legal pages -->
     <string name="privacy_page_title">Privacy Policy</string>
     <string name="privacy_page_intro">Your privacy matters. This page explains how Keyboard X handles information when you use the app and keyboard.</string>
     <string name="privacy_data_title">Information and data</string>
@@ -114,7 +114,6 @@
     <string name="terms_updates_title">Updates and availability</string>
     <string name="terms_updates_body">Features may be updated, changed, or discontinued to improve security, compatibility, or usability. These terms should be reviewed before public release and updated to reflect the final product and applicable law.</string>
 
-    <!-- Support center -->
     <string name="support_page_title">Help and Support</string>
     <string name="support_page_intro">Find help with setup, keyboard activation, language switching, and appearance settings.</string>
     <string name="support_faq_title">Frequently Asked Questions</string>
@@ -130,3 +129,4 @@
     <string name="support_report_issue">Report a problem</string>
     <string name="about_legal_notice">Privacy, terms, and support information</string>
 </resources>
+                                                   
