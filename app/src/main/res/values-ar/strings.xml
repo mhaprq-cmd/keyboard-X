@@ -60,6 +60,13 @@
     <!-- Settings -->
     <string name="settings_title">الإعدادات</string>
     <string name="settings_subtitle">تحكّم في طريقة عمل لوحة المفاتيح والتطبيق.</string>
+    <string name="settings_preferences_title">الضبط</string>
+    <string name="settings_preferences_description">الصوت والإعدادات العامة</string>
+    <string name="settings_app_languages_title">لغات التطبيق</string>
+    <string name="settings_app_languages_description">اختر لغة واجهة Keyboard X</string>
+    <string name="preferences_title">الضبط</string>
+    <string name="app_languages_title">لغة واجهة التطبيق</string>
+    <string name="app_languages_description">اختر اللغة المستخدمة في قوائم التطبيق وصفحاته.</string>
     <string name="sound_title">صوت ضغط المفاتيح</string>
     <string name="sound_description">تشغيل صوت عند الضغط على أحد المفاتيح.</string>
     <string name="sound_enabled">الصوت مفعّل</string>
