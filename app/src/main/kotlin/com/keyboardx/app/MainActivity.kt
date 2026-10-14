@@ -351,7 +351,7 @@ class MainActivity : AppCompatActivity() {
                 "English, choose app interface language"
             }
     }
-
+    
     private fun setupSettingsActions() {
         val soundButton =
             findViewById<Button>(R.id.soundToggleButton)
@@ -429,9 +429,9 @@ class MainActivity : AppCompatActivity() {
 
             setPadding(
                 dp(16),
-                dp(14),
+                0,
                 dp(16),
-                dp(14)
+                0
             )
 
             background = ContextCompat.getDrawable(
@@ -472,16 +472,16 @@ class MainActivity : AppCompatActivity() {
             titleView,
             LinearLayout.LayoutParams(
                 0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 1f
             )
         )
 
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            dp(56)
         ).apply {
-            bottomMargin = dp(8)
+            bottomMargin = dp(12)
         }
 
         settingsScreen.addView(card, params)
@@ -581,7 +581,7 @@ class MainActivity : AppCompatActivity() {
             showMessage(R.string.report_error_email_app_unavailable)
         }
     }
-    
+
     private fun savePreferredLanguage(language: String) {
         preferences.edit()
             .putString(KEY_ACTIVE_LANGUAGE, language)
@@ -670,7 +670,7 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(true)
             .show()
     }
-
+    
     private fun showScreen(screen: String) {
         val targetScreen = when (screen) {
             SCREEN_HOME,
