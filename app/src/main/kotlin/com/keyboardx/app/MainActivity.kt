@@ -245,15 +245,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun addInformationAndSupportLinks() {
         addSettingsLink(
-            title = getString(R.string.about_title),
-            description = getString(R.string.version_label) + " 0.1.0"
+            title = getString(R.string.about_title)
         ) {
-            openInformationPage(R.layout.fragment_about, PAGE_ABOUT)
+            openInformationPage(
+                R.layout.fragment_about,
+                PAGE_ABOUT
+            )
         }
 
         addSettingsLink(
-            title = getString(R.string.support_page_title),
-            description = getString(R.string.support_page_intro)
+            title = getString(R.string.support_page_title)
         ) {
             openInformationPage(
                 R.layout.fragment_support,
@@ -262,8 +263,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         addSettingsLink(
-            title = getString(R.string.privacy_full_title),
-            description = getString(R.string.privacy_full_intro)
+            title = getString(R.string.privacy_full_title)
         ) {
             openInformationPage(
                 R.layout.fragment_privacy,
@@ -272,8 +272,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         addSettingsLink(
-            title = getString(R.string.terms_full_title),
-            description = getString(R.string.terms_full_intro)
+            title = getString(R.string.terms_full_title)
         ) {
             openInformationPage(
                 R.layout.fragment_terms,
@@ -282,8 +281,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         addSettingsLink(
-            title = getString(R.string.ip_page_title),
-            description = getString(R.string.ip_page_intro)
+            title = getString(R.string.ip_page_title)
         ) {
             openInformationPage(
                 R.layout.fragment_intellectual_property,
@@ -294,51 +292,67 @@ class MainActivity : AppCompatActivity() {
 
     private fun addSettingsLink(
         title: String,
-        description: String,
         action: () -> Unit
     ) {
         val card = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(16), dp(18), dp(16))
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+
+            setPadding(
+                dp(16),
+                dp(14),
+                dp(16),
+                dp(14)
+            )
+
             background = ContextCompat.getDrawable(
                 this@MainActivity,
                 R.drawable.app_card_background
             )
+
             isClickable = true
             isFocusable = true
             contentDescription = title
-            setOnClickListener { action() }
+
+            setOnClickListener {
+                action()
+            }
         }
 
         val titleView = TextView(this).apply {
             text = title
+
             setTextColor(
                 ContextCompat.getColor(
                     this@MainActivity,
                     R.color.app_text_primary
                 )
             )
-            textSize = 16f
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
+
+            textSize = 15f
+
+            setTypeface(
+                typeface,
+                android.graphics.Typeface.BOLD
+            )
+
+            gravity = android.view.Gravity.CENTER_VERTICAL
         }
 
-        val descriptionView = TextView(this).apply {
-            text = description
-            setTextColor(inactiveColor)
-            textSize = 13f
-            setLineSpacing(dp(2).toFloat(), 1f)
-            setPadding(0, dp(6), 0, 0)
-            maxLines = 3
-        }
-
-        card.addView(titleView)
-        card.addView(descriptionView)
+        card.addView(
+            titleView,
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+        )
 
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         ).apply {
-            bottomMargin = dp(12)
+            bottomMargin = dp(8)
         }
 
         settingsScreen.addView(card, params)
@@ -378,7 +392,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-    
+
     private fun setupSupportPage(page: View) {
         setupBackButton(page, R.id.supportBackText)
 
