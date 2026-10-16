@@ -409,34 +409,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-            private fun addInformationAndSupportLinks() {
-        addSettingsLink(
-            title = getString(R.string.about_title)
-        ) {
-            openInformationPage(
-                R.layout.fragment_about,
-                PAGE_ABOUT
-            )
-        }
-
-        addSettingsLink(
-            title = getString(R.string.support_page_title)
-        ) {
-            openInformationPage(
-                R.layout.fragment_support,
-                PAGE_SUPPORT
-            )
-        }
-
-        addSettingsLink(
-            title = getString(R.string.privacy_full_title)
-        ) {
-            openInformationPage(
-                R.layout.fragment_privacy,
-                PAGE_PRIVACY
-            )
-        }
-
         addSettingsLink(
             title = getString(R.string.terms_full_title)
         ) {
