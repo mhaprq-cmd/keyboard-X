@@ -209,7 +209,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="العربية"
+                            android:text="@string/language_arabic"
                             android:textColor="@color/app_text_primary"
                             android:textSize="17sp"
                             android:textStyle="bold" />
@@ -226,7 +226,8 @@
                         android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
-                                <LinearLayout
+
+                <LinearLayout
                     android:id="@+id/languageEnglishCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -259,7 +260,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="الإنجليزية"
+                            android:text="@string/language_english"
                             android:textColor="@color/app_text_primary"
                             android:textSize="17sp"
                             android:textStyle="bold" />
@@ -278,7 +279,7 @@
                 </LinearLayout>
 
             </LinearLayout>
-
+            
             <LinearLayout
                 android:id="@+id/appearanceScreen"
                 android:layout_width="match_parent"
@@ -370,7 +371,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="الضبط"
+                            android:text="@string/settings_preferences_title"
                             android:textColor="@color/app_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -406,7 +407,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="اللغات"
+                            android:text="@string/settings_app_languages_title"
                             android:textColor="@color/app_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -432,7 +433,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="الضبط"
+                    android:text="@string/preferences_title"
                     android:textColor="@color/app_text_primary"
                     android:textSize="26sp"
                     android:textStyle="bold"
@@ -486,7 +487,8 @@
                         android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
             </LinearLayout>
-                        <LinearLayout
+            
+            <LinearLayout
                 android:id="@+id/appLanguagesScreen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -496,7 +498,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="لغات واجهة التطبيق"
+                    android:text="@string/app_languages_title"
                     android:textColor="@color/app_text_primary"
                     android:textSize="26sp"
                     android:textStyle="bold"
@@ -536,7 +538,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="العربية"
+                            android:text="@string/app_language_arabic"
                             android:textColor="@color/app_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -587,7 +589,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="English"
+                            android:text="@string/app_language_english"
                             android:textColor="@color/app_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -614,6 +616,7 @@
         android:layout_height="68dp"
         android:orientation="horizontal"
         android:gravity="center"
+        android:layoutDirection="rtl"
         android:background="@color/app_surface"
         android:elevation="8dp">
 
@@ -625,8 +628,12 @@
             android:gravity="center"
             android:text="@string/nav_home"
             android:textColor="@color/app_accent"
-            android:textSize="13sp"
-            android:textStyle="bold"
+            android:textSize="12sp"
+            android:drawableTop="@drawable/ic_nav_home"
+            android:drawableTint="@color/nav_item_tint"
+            android:drawablePadding="4dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -636,9 +643,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/language_title"
+            android:text="@string/nav_languages"
             android:textColor="@color/app_text_secondary"
             android:textSize="12sp"
+            android:drawableTop="@drawable/ic_nav_languages"
+            android:drawableTint="@color/nav_item_tint"
+            android:drawablePadding="4dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -650,7 +662,12 @@
             android:gravity="center"
             android:text="@string/nav_appearance"
             android:textColor="@color/app_text_secondary"
-            android:textSize="13sp"
+            android:textSize="12sp"
+            android:drawableTop="@drawable/ic_nav_appearance"
+            android:drawableTint="@color/nav_item_tint"
+            android:drawablePadding="4dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -662,7 +679,12 @@
             android:gravity="center"
             android:text="@string/nav_settings"
             android:textColor="@color/app_text_secondary"
-            android:textSize="13sp"
+            android:textSize="12sp"
+            android:drawableTop="@drawable/ic_nav_settings"
+            android:drawableTint="@color/nav_item_tint"
+            android:drawablePadding="4dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp"
             android:clickable="true"
             android:focusable="true" />
     </LinearLayout>
