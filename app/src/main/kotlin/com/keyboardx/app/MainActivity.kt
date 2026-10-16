@@ -408,16 +408,6 @@ class MainActivity : AppCompatActivity() {
                 PAGE_TERMS
             )
         }
-
-        addSettingsLink(
-            title = getString(R.string.terms_full_title)
-        ) {
-            openInformationPage(
-                R.layout.fragment_terms,
-                PAGE_TERMS
-            )
-        }
-            }
     }
 
     private fun addSettingsLink(
