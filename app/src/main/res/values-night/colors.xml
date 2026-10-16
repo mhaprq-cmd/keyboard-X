@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Keyboard X app interface colors: dark theme -->
-    <color name="app_background">#FF12131B</color>
-    <color name="app_surface">#FF1D1F2B</color>
-    <color name="app_card_border">#FF343747</color>
-    <color name="app_text_primary">#FFF4F3FF</color>
-    <color name="app_text_secondary">#FFB1B2C5</color>
-    <color name="app_accent">#FFA69BFF</color>
-    <color name="app_accent_soft">#FF302B50</color>
-    <color name="app_status_bar">#FF12131B</color>
-    <color name="app_navigation_bar">#FF12131B</color>
+    <!-- Keyboard X app interface colors: dark theme (matched to reference) -->
+    <color name="app_background">#FF0A1020</color>
+    <color name="app_surface">#FF111A30</color>
+    <color name="app_card_border">#FF2A3A66</color>
+    <color name="app_text_primary">#FFF4F6FF</color>
+    <color name="app_text_secondary">#FF9AA6C4</color>
+    <color name="app_accent">#FF6C7BFF</color>
+    <color name="app_accent_soft">#FF1E2850</color>
+    <color name="app_status_bar">#FF0A1020</color>
+    <color name="app_navigation_bar">#FF0A1020</color>
 </resources>
