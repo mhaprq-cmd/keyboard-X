@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bindViews()
+        highlightAppNameX(findViewById<TextView>(R.id.appTitleText))
         initializeDefaultLanguage()
         setupNavigation()
         setupKeyboardActions()
@@ -506,7 +507,12 @@ class MainActivity : AppCompatActivity() {
 
         when (pageName) {
             PAGE_SUPPORT -> setupSupportPage(page)
-            PAGE_ABOUT -> setupBackButton(page, R.id.aboutBackText)
+            PAGE_ABOUT -> {
+                setupBackButton(page, R.id.aboutBackText)
+                highlightAppNameX(
+                    page.findViewById<TextView>(R.id.aboutAppTitle)
+                )
+            }
             PAGE_PRIVACY -> setupBackButton(page, R.id.privacyBackText)
             PAGE_TERMS -> setupBackButton(page, R.id.termsBackText)
             PAGE_INTELLECTUAL_PROPERTY -> setupBackButton(
