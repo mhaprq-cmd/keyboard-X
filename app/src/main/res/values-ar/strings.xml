@@ -43,7 +43,7 @@
     <string name="theme_dark">داكن</string>
     <string name="keyboard_theme_title">تصميم لوحة المفاتيح</string>
     <string name="keyboard_theme_description">اختر شكل أزرار لوحة المفاتيح وخلفيتها الفعلية.</string>
-    <string name="keyboard_background_title">خلفية لوحة المفاتيح</string>
+    <string name="keyboard_background_title">لوحة المفاتيح</string>
     <string name="keyboard_background_description">اختر خلفية مدمجة للوحة المفاتيح.</string>
     <string name="keyboard_preview_title">جرّب الكتابة</string>
     <string name="keyboard_preview_description">عاين لوحة المفاتيح واكتب في الحقل أدناه.</string>
@@ -62,7 +62,7 @@
     <string name="settings_subtitle">تحكّم في طريقة عمل لوحة المفاتيح والتطبيق.</string>
     <string name="settings_preferences_title">الضبط</string>
     <string name="settings_preferences_description">الصوت والإعدادات العامة</string>
-    <string name="settings_app_languages_title">لغات التطبيق</string>
+    <string name="settings_app_languages_title">لغة التطبيق</string>
     <string name="settings_app_languages_description">اختر لغة واجهة Keyboard X</string>
     <string name="preferences_title">الضبط</string>
     <string name="app_languages_title">لغة واجهة التطبيق</string>
