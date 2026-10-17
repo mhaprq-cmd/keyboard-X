@@ -39,7 +39,7 @@
     <string name="theme_dark">Dark</string>
     <string name="keyboard_theme_title">Keyboard design</string>
     <string name="keyboard_theme_description">Choose how the actual keyboard keys and background look.</string>
-    <string name="keyboard_background_title">Keyboard background</string>
+    <string name="keyboard_background_title">Keyboard</string>
     <string name="keyboard_background_description">Choose a built-in background for the keyboard.</string>
     <string name="keyboard_preview_title">Try typing</string>
     <string name="keyboard_preview_description">Preview the keyboard and type in the field below.</string>
@@ -57,7 +57,7 @@
     <string name="settings_subtitle">Control how your keyboard and app behave.</string>
     <string name="settings_preferences_title">Preferences</string>
     <string name="settings_preferences_description">Sound and general settings</string>
-    <string name="settings_app_languages_title">App languages</string>
+    <string name="settings_app_languages_title">App language</string>
     <string name="settings_app_languages_description">Choose the Keyboard X interface language</string>
     <string name="preferences_title">Preferences</string>
     <string name="app_languages_title">App interface language</string>
