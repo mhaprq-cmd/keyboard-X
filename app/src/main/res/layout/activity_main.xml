@@ -37,6 +37,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/appTitleText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
@@ -279,7 +280,7 @@
                 </LinearLayout>
 
             </LinearLayout>
-            
+
             <LinearLayout
                 android:id="@+id/appearanceScreen"
                 android:layout_width="match_parent"
@@ -396,7 +397,8 @@
                     android:paddingEnd="16dp"
                     android:background="@drawable/app_card_background"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:layout_marginBottom="12dp">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -422,7 +424,7 @@
                         android:textSize="26sp" />
                 </LinearLayout>
             </LinearLayout>
-
+            
             <LinearLayout
                 android:id="@+id/preferencesScreen"
                 android:layout_width="match_parent"
@@ -487,7 +489,7 @@
                         android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
             </LinearLayout>
-            
+
             <LinearLayout
                 android:id="@+id/appLanguagesScreen"
                 android:layout_width="match_parent"
