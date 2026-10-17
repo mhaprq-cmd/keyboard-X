@@ -545,6 +545,23 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun highlightAppNameX(view: TextView?) {
+        if (view == null) return
+
+        val name = getString(R.string.app_name)
+        val index = name.lastIndexOf('X')
+        if (index < 0) return
+
+        val styled = SpannableString(name)
+        styled.setSpan(
+            ForegroundColorSpan(activeColor),
+            index,
+            index + 1,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        view.text = styled
+        }
+        
     private fun setupBackButton(page: View, viewId: Int) {
         page.findViewById<TextView>(viewId)
             ?.setOnClickListener {
