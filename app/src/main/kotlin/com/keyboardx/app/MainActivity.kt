@@ -275,16 +275,60 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupLanguageSelection() {
         languageArabicCard.setOnClickListener {
-            savePreferredLanguage(LANGUAGE_ARABIC)
-            refreshLanguageSelection()
+            toggleKeyboardLanguage(LANGUAGE_ARABIC)
         }
 
         languageEnglishCard.setOnClickListener {
-            savePreferredLanguage(LANGUAGE_ENGLISH)
-            refreshLanguageSelection()
+            toggleKeyboardLanguage(LANGUAGE_ENGLISH)
         }
     }
 
+    private fun getEnabledKeyboardLanguages(): Set<String> {
+        val saved = preferences.getString(KEY_ENABLED_LANGUAGES, null)
+
+        val parsed = saved
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it == LANGUAGE_ARABIC || it == LANGUAGE_ENGLISH }
+            ?.toSet()
+            .orEmpty()
+
+        return if (parsed.isEmpty()) {
+            setOf(LANGUAGE_ARABIC, LANGUAGE_ENGLISH)
+        } else {
+            parsed
+        }
+    }
+
+    private fun toggleKeyboardLanguage(language: String) {
+        val enabled = getEnabledKeyboardLanguages().toMutableSet()
+
+        if (language in enabled) {
+            // يجب أن تبقى لغة واحدة على الأقل مفعّلة.
+            if (enabled.size <= 1) {
+                return
+            }
+            enabled.remove(language)
+        } else {
+            enabled.add(language)
+        }
+
+        val currentActive = preferences.getString(
+            KEY_ACTIVE_LANGUAGE,
+            LANGUAGE_ENGLISH
+        ) ?: LANGUAGE_ENGLISH
+
+        val newActive =
+            if (currentActive in enabled) currentActive else enabled.first()
+
+        preferences.edit()
+            .putString(KEY_ENABLED_LANGUAGES, enabled.joinToString(","))
+            .putString(KEY_ACTIVE_LANGUAGE, newActive)
+            .apply()
+
+        refreshLanguageSelection()
+    }
+    
     private fun setupAppLanguageSelection() {
         appLanguageArabicCard.setOnClickListener {
             setAppLanguage(LANGUAGE_ARABIC)
@@ -355,7 +399,7 @@ class MainActivity : AppCompatActivity() {
                 "English, choose app interface language"
             }
     }
-    
+
     private fun setupSettingsActions() {
         val soundButton =
             findViewById<Button>(R.id.soundToggleButton)
@@ -560,8 +604,8 @@ class MainActivity : AppCompatActivity() {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         view.text = styled
-        }
-        
+    }
+
     private fun setupBackButton(page: View, viewId: Int) {
         page.findViewById<TextView>(viewId)
             ?.setOnClickListener {
@@ -580,7 +624,7 @@ class MainActivity : AppCompatActivity() {
 
         showScreen(SCREEN_SETTINGS)
     }
-
+    
     private fun openSupportEmail() {
         val emailIntent = Intent(
             Intent.ACTION_SENDTO,
@@ -606,39 +650,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshLanguageSelection() {
-        val selectedLanguage = preferences.getString(
-            KEY_ACTIVE_LANGUAGE,
-            LANGUAGE_ENGLISH
-        ) ?: LANGUAGE_ENGLISH
+        val enabled = getEnabledKeyboardLanguages()
 
-        val isArabicSelected =
-            selectedLanguage == LANGUAGE_ARABIC
+        val isArabicEnabled = LANGUAGE_ARABIC in enabled
+        val isEnglishEnabled = LANGUAGE_ENGLISH in enabled
 
         languageArabicSelected.visibility =
-            if (isArabicSelected) View.VISIBLE else View.GONE
+            if (isArabicEnabled) View.VISIBLE else View.GONE
 
         languageEnglishSelected.visibility =
-            if (isArabicSelected) View.GONE else View.VISIBLE
+            if (isEnglishEnabled) View.VISIBLE else View.GONE
 
-        languageArabicCard.isSelected = isArabicSelected
-        languageEnglishCard.isSelected = !isArabicSelected
+        languageArabicCard.isSelected = isArabicEnabled
+        languageEnglishCard.isSelected = isEnglishEnabled
 
         languageArabicCard.alpha =
-            if (isArabicSelected) 1.0f else 0.78f
+            if (isArabicEnabled) 1.0f else 0.78f
 
         languageEnglishCard.alpha =
-            if (isArabicSelected) 0.78f else 1.0f
+            if (isEnglishEnabled) 1.0f else 0.78f
 
         languageArabicCard.contentDescription =
-            if (isArabicSelected) {
-                "العربية، اللغة المحددة"
+            if (isArabicEnabled) {
+                "العربية، مفعّلة"
             } else {
                 "العربية"
             }
 
         languageEnglishCard.contentDescription =
-            if (!isArabicSelected) {
-                "الإنجليزية، اللغة المحددة"
+            if (isEnglishEnabled) {
+                "الإنجليزية، مفعّلة"
             } else {
                 "الإنجليزية"
             }
@@ -687,7 +728,7 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(true)
             .show()
     }
-    
+
     private fun showScreen(screen: String) {
         val targetScreen = when (screen) {
             SCREEN_HOME,
@@ -849,6 +890,7 @@ class MainActivity : AppCompatActivity() {
             "keyboard_x_preferences"
 
         private const val KEY_ACTIVE_LANGUAGE = "active_language"
+        private const val KEY_ENABLED_LANGUAGES = "enabled_languages"
         private const val KEY_WELCOME_SHOWN = "welcome_dialog_shown"
         private const val KEY_SOUND_ENABLED = "sound_enabled"
 
