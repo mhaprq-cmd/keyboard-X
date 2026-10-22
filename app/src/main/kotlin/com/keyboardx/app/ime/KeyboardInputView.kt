@@ -1,4 +1,3 @@
-
 package com.keyboardx.app.ime
 
 import com.keyboardx.app.R
@@ -423,7 +422,7 @@ class KeyboardInputView @JvmOverloads constructor(
             top += rowHeight + keyGap
         }
     }
-
+    
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -527,7 +526,7 @@ class KeyboardInputView @JvmOverloads constructor(
             imagePaint
         )
     }
-  
+
     private fun drawLongPressVariants(canvas: Canvas) {
         if (
             !longPressTriggered ||
@@ -739,7 +738,7 @@ class KeyboardInputView @JvmOverloads constructor(
 
         return true
     }
-
+    
     private fun startLongPress(index: Int) {
         stopLongPress()
 
@@ -965,6 +964,11 @@ class KeyboardInputView @JvmOverloads constructor(
             }
 
             KeyAction.SWITCH_LANGUAGE -> {
+                // لغة واحدة مفعّلة فقط: زر الكرة الأرضية لا يفعل شيئًا.
+                if (getEnabledLanguages().size < 2) {
+                    return
+                }
+
                 activeLanguage =
                     if (
                         activeLanguage ==
@@ -1013,13 +1017,35 @@ class KeyboardInputView @JvmOverloads constructor(
         }
     }
 
+    private fun getEnabledLanguages(): Set<KeyboardLayout.Language> {
+        val saved = preferences.getString("enabled_languages", null)
+
+        val parsed = saved
+            ?.split(",")
+            ?.mapNotNull { name ->
+                KeyboardLayout.Language.values()
+                    .firstOrNull { it.name == name.trim() }
+            }
+            ?.toSet()
+            .orEmpty()
+
+        return if (parsed.isEmpty()) {
+            setOf(
+                KeyboardLayout.Language.ARABIC,
+                KeyboardLayout.Language.ENGLISH
+            )
+        } else {
+            parsed
+        }
+    }
+
     private fun loadPreferredLanguage(): KeyboardLayout.Language {
         val savedLanguage = preferences.getString(
             "active_language",
             KeyboardLayout.Language.ENGLISH.name
         )
 
-        return if (
+        val language = if (
             savedLanguage ==
             KeyboardLayout.Language.ARABIC.name
         ) {
@@ -1027,6 +1053,10 @@ class KeyboardInputView @JvmOverloads constructor(
         } else {
             KeyboardLayout.Language.ENGLISH
         }
+
+        val enabled = getEnabledLanguages()
+
+        return if (language in enabled) language else enabled.first()
     }
 
     private fun savePreferredLanguage(
