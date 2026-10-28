@@ -91,6 +91,17 @@
     <string name="action_done">Done</string>
     <string name="selection_saved">Your selection has been saved.</string>
 
+    <!-- Home screen (reference design) -->
+    <string name="home_status_active_title">Activated</string>
+    <string name="home_status_active_desc">Keyboard X is enabled as your active keyboard</string>
+    <string name="home_status_inactive_desc">Enable Keyboard X in Android settings to start typing</string>
+    <string name="home_action_deactivate">Deactivate</string>
+    <string name="home_card_languages_desc">Manage languages and input settings</string>
+    <string name="home_card_appearance_desc">Choose the theme that suits you</string>
+    <string name="home_card_settings_desc">Customize your typing experience</string>
+    <string name="home_card_about_title">About the app</string>
+    <string name="home_card_about_desc">Version info and support</string>
+    
     <string name="welcome_title">Welcome to Keyboard X</string>
     <string name="welcome_message">Your keyboard is almost ready. Enable Keyboard X in Android settings, then select it as your default keyboard to start typing.</string>
     <string name="welcome_later">Maybe later</string>
@@ -128,4 +139,3 @@
     <string name="support_report_issue">Report a problem</string>
     <string name="about_legal_notice">Privacy, terms, and support information</string>
 </resources>
-                                                   
