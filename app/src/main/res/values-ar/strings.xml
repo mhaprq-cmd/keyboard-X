@@ -97,6 +97,17 @@
     <string name="action_done">تم</string>
     <string name="selection_saved">تم حفظ اختيارك.</string>
 
+    <!-- Home screen (reference design) -->
+    <string name="home_status_active_title">تم التفعيل</string>
+    <string name="home_status_active_desc">Keyboard X مفعّل كلوحة مفاتيح افتراضية</string>
+    <string name="home_status_inactive_desc">فعّل Keyboard X من إعدادات أندرويد لبدء الكتابة</string>
+    <string name="home_action_deactivate">إلغاء التفعيل</string>
+    <string name="home_card_languages_desc">إدارة اللغات وإعدادات الإدخال</string>
+    <string name="home_card_appearance_desc">اختر الثيم المناسب لك</string>
+    <string name="home_card_settings_desc">تخصيص تجربة الكتابة</string>
+    <string name="home_card_about_title">حول التطبيق</string>
+    <string name="home_card_about_desc">معلومات الإصدار والدعم</string>
+    
     <!-- First-launch welcome -->
     <string name="welcome_title">مرحبًا بك في Keyboard X</string>
     <string name="welcome_message">لوحة مفاتيحك على وشك أن تصبح جاهزة. فعّل Keyboard X من إعدادات أندرويد، ثم اخترها لوحة المفاتيح الافتراضية لبدء الكتابة.</string>
