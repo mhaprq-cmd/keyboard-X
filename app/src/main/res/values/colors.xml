@@ -23,4 +23,8 @@
     <color name="app_accent_soft">#FFE9EDFF</color>
     <color name="app_status_bar">#FFF5F7FC</color>
     <color name="app_navigation_bar">#FFFFFFFF</color>
+
+    <!-- Home status card -->
+    <color name="status_success">#FF22C55E</color>
+    <color name="status_success_soft">#1F22C55E</color>
 </resources>
