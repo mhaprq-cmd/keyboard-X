@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- كتالوج لوحات المفاتيح: الشاشة الرئيسية -->
+    <string name="keyboard_styles_title">اختر لوحة المفاتيح</string>
+    <string name="keyboard_styles_subtitle">تصفّح لوحات المفاتيح المتاحة وطبّق التي تعجبك.</string>
+    <string name="keyboard_style_apply">تطبيق</string>
+    <string name="keyboard_style_applied">مُطبّقة</string>
+    <string name="keyboard_style_badge_new">جديد</string>
+
+    <!-- اسم ووصف لكل لوحة مفاتيح -->
+    <string name="keyboard_style_default_name">لوحة افتراضية</string>
+    <string name="keyboard_style_default_desc">مفاتيح نظيفة على خلفية سادة.</string>
+
+    <string name="keyboard_style_image_name">خلفية صورة</string>
+    <string name="keyboard_style_image_desc">لوحة المفاتيح بالخلفية الصورية المدمجة.</string>
+
+</resources>
