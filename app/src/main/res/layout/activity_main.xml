@@ -54,113 +54,95 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/home_greeting"
-                    android:textColor="@color/app_text_primary"
-                    android:textSize="27sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="20dp" />
-
                 <LinearLayout
+                    android:id="@+id/keyboardStatusCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:background="@drawable/app_card_background"
-                    android:elevation="2dp"
-                    android:layout_marginBottom="18dp">
+                    android:background="@drawable/home_status_card_background"
+                    android:layout_marginBottom="24dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/keyboard_status_title"
-                        android:textColor="@color/app_text_primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/keyboardEnabledStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/keyboard_not_enabled"
-                        android:textColor="@color/app_text_secondary"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="14dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/keyboardStatusTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/keyboard_not_enabled"
+                                android:textColor="@color/app_text_primary"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/keyboardEnabledStatus"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/home_status_inactive_desc"
+                                android:textColor="@color/app_text_secondary"
+                                android:textSize="14sp"
+                                android:lineSpacingExtra="3dp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/keyboardStatusIcon"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="12dp"
+                            android:padding="11dp"
+                            android:src="@drawable/ic_check"
+                            android:background="@drawable/home_icon_circle"
+                            android:backgroundTint="@color/status_success"
+                            android:importantForAccessibility="no" />
+                    </LinearLayout>
 
                     <Button
-                        android:id="@+id/enableKeyboardButton"
+                        android:id="@+id/keyboardActionButton"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
+                        android:layout_marginTop="16dp"
                         android:text="@string/enable_keyboard"
                         android:textAllCaps="false"
                         android:textColor="@color/app_background"
                         android:backgroundTint="@color/app_accent" />
-
-                    <Button
-                        android:id="@+id/selectKeyboardButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/select_keyboard"
-                        android:textAllCaps="false"
-                        android:textColor="@color/app_accent"
-                        android:backgroundTint="@color/app_accent_soft" />
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/quick_settings"
+                    android:text="@string/keyboard_styles_title"
                     android:textColor="@color/app_text_primary"
                     android:textSize="19sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="4dp" />
 
-                <LinearLayout
-                    android:id="@+id/homeAppearanceShortcut"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp"
-                    android:background="@drawable/app_card_background"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/appearance_title"
-                        android:textColor="@color/app_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
+                    android:text="@string/keyboard_styles_subtitle"
+                    android:textColor="@color/app_text_secondary"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:layout_marginBottom="14dp" />
 
                 <LinearLayout
-                    android:id="@+id/homeSettingsShortcut"
+                    android:id="@+id/keyboardStylesContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp"
-                    android:background="@drawable/app_card_background"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_title"
-                        android:textColor="@color/app_text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
+                    android:orientation="vertical" />
             </LinearLayout>
-
+            
             <LinearLayout
                 android:id="@+id/languagesScreen"
                 android:layout_width="match_parent"
@@ -424,7 +406,6 @@
                         android:textSize="26sp" />
                 </LinearLayout>
             </LinearLayout>
-            
             <LinearLayout
                 android:id="@+id/preferencesScreen"
                 android:layout_width="match_parent"
