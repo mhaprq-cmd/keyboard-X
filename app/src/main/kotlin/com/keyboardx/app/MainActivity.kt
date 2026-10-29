@@ -3,17 +3,23 @@ package com.keyboardx.app
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -23,6 +29,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
+import androidx.core.view.ViewCompat
+import com.keyboardx.app.ime.KeyboardStyle
+import com.keyboardx.app.ime.KeyboardStyleCatalog
+import com.keyboardx.app.ime.KeyboardStylePreviewView
+import com.keyboardx.app.ime.KeyboardStyleStore
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -52,6 +63,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navSettings: TextView
     private lateinit var keyboardEnabledStatus: TextView
 
+    private lateinit var keyboardStatusCard: LinearLayout
+    private lateinit var keyboardStatusTitle: TextView
+    private lateinit var keyboardStatusIcon: ImageView
+    private lateinit var keyboardActionButton: Button
+    private lateinit var keyboardStylesContainer: LinearLayout
+
     private lateinit var languageArabicCard: LinearLayout
     private lateinit var languageEnglishCard: LinearLayout
     private lateinit var languageArabicSelected: TextView
@@ -60,6 +77,7 @@ class MainActivity : AppCompatActivity() {
     private var activePageView: View? = null
     private var currentScreen = SCREEN_HOME
     private var soundEnabled = false
+    private var keyboardState = KEYBOARD_STATE_NOT_ENABLED
 
     private val preferences by lazy {
         getSharedPreferences(
@@ -86,12 +104,12 @@ class MainActivity : AppCompatActivity() {
         initializeDefaultLanguage()
         setupNavigation()
         setupKeyboardActions()
-        setupShortcuts()
         setupLanguageSelection()
         setupAppLanguageSelection()
         setupSettingsActions()
         addInformationAndSupportLinks()
         refreshSoundStatus()
+        buildKeyboardStyleCards()
 
         showScreen(
             savedInstanceState?.getString(KEY_CURRENT_SCREEN)
@@ -190,6 +208,21 @@ class MainActivity : AppCompatActivity() {
         keyboardEnabledStatus =
             findViewById(R.id.keyboardEnabledStatus)
 
+        keyboardStatusCard =
+            findViewById(R.id.keyboardStatusCard)
+
+        keyboardStatusTitle =
+            findViewById(R.id.keyboardStatusTitle)
+
+        keyboardStatusIcon =
+            findViewById(R.id.keyboardStatusIcon)
+
+        keyboardActionButton =
+            findViewById(R.id.keyboardActionButton)
+
+        keyboardStylesContainer =
+            findViewById(R.id.keyboardStylesContainer)
+
         languageArabicCard =
             findViewById(R.id.languageArabicCard)
 
@@ -222,7 +255,7 @@ class MainActivity : AppCompatActivity() {
             .putString(KEY_ACTIVE_LANGUAGE, initialLanguage)
             .apply()
     }
-
+    
     private fun setupNavigation() {
         navHome.setOnClickListener {
             showScreen(SCREEN_HOME)
@@ -250,27 +283,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupKeyboardActions() {
-        findViewById<Button>(R.id.enableKeyboardButton)
-            .setOnClickListener {
-                openKeyboardSettings()
-            }
+        keyboardActionButton.setOnClickListener {
+            when (keyboardState) {
+                // Enabled but not selected: open the system picker.
+                KEYBOARD_STATE_ENABLED -> showKeyboardPicker()
 
-        findViewById<Button>(R.id.selectKeyboardButton)
-            .setOnClickListener {
-                showKeyboardPicker()
+                // Not enabled, or selected (deactivate): Android only
+                // lets the user change this in its keyboard settings.
+                else -> openKeyboardSettings()
             }
-    }
-
-    private fun setupShortcuts() {
-        findViewById<LinearLayout>(R.id.homeAppearanceShortcut)
-            .setOnClickListener {
-                showScreen(SCREEN_APPEARANCE)
-            }
-
-        findViewById<LinearLayout>(R.id.homeSettingsShortcut)
-            .setOnClickListener {
-                showScreen(SCREEN_SETTINGS)
-            }
+        }
     }
 
     private fun setupLanguageSelection() {
@@ -328,7 +350,7 @@ class MainActivity : AppCompatActivity() {
 
         refreshLanguageSelection()
     }
-    
+
     private fun setupAppLanguageSelection() {
         appLanguageArabicCard.setOnClickListener {
             setAppLanguage(LANGUAGE_ARABIC)
@@ -419,7 +441,7 @@ class MainActivity : AppCompatActivity() {
             refreshSoundStatus()
         }
     }
-
+    
     private fun addInformationAndSupportLinks() {
         addSettingsLink(
             title = getString(R.string.about_title)
@@ -815,7 +837,7 @@ class MainActivity : AppCompatActivity() {
             mainScrollView.scrollTo(0, 0)
         }
     }
-
+    
     private fun refreshKeyboardStatus() {
         val inputMethodManager =
             getSystemService(Context.INPUT_METHOD_SERVICE)
@@ -838,16 +860,77 @@ class MainActivity : AppCompatActivity() {
         val isSelected =
             isEnabled && selectedMethod?.contains(serviceName) == true
 
-        keyboardEnabledStatus.setText(
-            when {
-                isSelected -> R.string.keyboard_selected
-                isEnabled -> R.string.keyboard_not_selected
+        keyboardState = when {
+            isSelected -> KEYBOARD_STATE_SELECTED
+            isEnabled -> KEYBOARD_STATE_ENABLED
+            else -> KEYBOARD_STATE_NOT_ENABLED
+        }
+
+        keyboardStatusTitle.setText(
+            when (keyboardState) {
+                KEYBOARD_STATE_SELECTED -> R.string.home_status_active_title
+                KEYBOARD_STATE_ENABLED -> R.string.keyboard_enabled
                 else -> R.string.keyboard_not_enabled
             }
         )
 
-        keyboardEnabledStatus.setTextColor(
-            if (isSelected) activeColor else inactiveColor
+        keyboardEnabledStatus.setText(
+            when (keyboardState) {
+                KEYBOARD_STATE_SELECTED -> R.string.home_status_active_desc
+                KEYBOARD_STATE_ENABLED -> R.string.keyboard_not_selected
+                else -> R.string.home_status_inactive_desc
+            }
+        )
+
+        keyboardActionButton.setText(
+            when (keyboardState) {
+                KEYBOARD_STATE_SELECTED -> R.string.home_action_deactivate
+                KEYBOARD_STATE_ENABLED -> R.string.select_keyboard
+                else -> R.string.enable_keyboard
+            }
+        )
+
+        keyboardActionButton.setTextColor(
+            if (isSelected) {
+                activeColor
+            } else {
+                ContextCompat.getColor(this, R.color.app_background)
+            }
+        )
+
+        ViewCompat.setBackgroundTintList(
+            keyboardActionButton,
+            ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    this,
+                    if (isSelected) {
+                        R.color.app_accent_soft
+                    } else {
+                        R.color.app_accent
+                    }
+                )
+            )
+        )
+
+        keyboardStatusIcon.visibility =
+            if (isSelected) View.VISIBLE else View.GONE
+
+        // The green card is shown only when Keyboard X is the active keyboard.
+        val cardPadding = dp(20)
+
+        keyboardStatusCard.setBackgroundResource(
+            if (isSelected) {
+                R.drawable.home_status_card_background
+            } else {
+                R.drawable.app_card_background
+            }
+        )
+
+        keyboardStatusCard.setPadding(
+            cardPadding,
+            cardPadding,
+            cardPadding,
+            cardPadding
         )
     }
 
@@ -885,6 +968,216 @@ class MainActivity : AppCompatActivity() {
         return (value * resources.displayMetrics.density).toInt()
     }
 
+    /*
+     * Keyboard catalog.
+     * The cards are built from KeyboardStyleCatalog, so adding a new
+     * keyboard never requires a change in this file or in the layout.
+     */
+    private fun buildKeyboardStyleCards() {
+        keyboardStylesContainer.removeAllViews()
+
+        val selectedId = KeyboardStyleCatalog
+            .findById(KeyboardStyleStore.getSelectedId(this))
+            .id
+
+        KeyboardStyleCatalog.all.forEach { style ->
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(14)
+            }
+
+            keyboardStylesContainer.addView(
+                createKeyboardStyleCard(style, style.id == selectedId),
+                params
+            )
+        }
+    }
+
+    private fun createKeyboardStyleCard(
+        style: KeyboardStyle,
+        selected: Boolean
+    ): View {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.app_card_background)
+            setPadding(dp(14), dp(14), dp(14), dp(14))
+        }
+
+        val preview = KeyboardStylePreviewView(this)
+        preview.setStyle(style)
+
+        card.addView(
+            preview,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val nameView = TextView(this).apply {
+            setText(style.nameRes)
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.app_text_primary
+                )
+            )
+        }
+
+        val descriptionView = TextView(this).apply {
+            setText(style.descriptionRes)
+            textSize = 13f
+            setTextColor(inactiveColor)
+        }
+
+        val nameRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        nameRow.addView(nameView)
+
+        if (style.isNew) {
+            nameRow.addView(
+                createNewBadge(),
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    marginStart = dp(8)
+                }
+            )
+        }
+
+        val textColumn = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        textColumn.addView(nameRow)
+        textColumn.addView(
+            descriptionView,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(2)
+            }
+        )
+
+        val infoRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        infoRow.addView(
+            textColumn,
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+        )
+
+        infoRow.addView(
+            createApplyButton(style, selected),
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                dp(40)
+            ).apply {
+                marginStart = dp(12)
+            }
+        )
+
+        card.addView(
+            infoRow,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(12)
+            }
+        )
+
+        return card
+    }
+
+    private fun createNewBadge(): TextView {
+        return TextView(this).apply {
+            setText(R.string.keyboard_style_badge_new)
+            textSize = 11f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+
+            background = GradientDrawable().apply {
+                setColor(activeColor)
+                cornerRadius = dp(8).toFloat()
+            }
+
+            setPadding(dp(8), dp(2), dp(8), dp(2))
+        }
+    }
+
+    private fun createApplyButton(
+        style: KeyboardStyle,
+        selected: Boolean
+    ): Button {
+        return Button(this).apply {
+            isAllCaps = false
+            textSize = 13f
+            minWidth = dp(96)
+            minimumWidth = dp(96)
+
+            setText(
+                if (selected) {
+                    R.string.keyboard_style_applied
+                } else {
+                    R.string.keyboard_style_apply
+                }
+            )
+
+            setTextColor(
+                if (selected) {
+                    activeColor
+                } else {
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.app_background
+                    )
+                }
+            )
+
+            ViewCompat.setBackgroundTintList(
+                this,
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        if (selected) {
+                            R.color.app_accent_soft
+                        } else {
+                            R.color.app_accent
+                        }
+                    )
+                )
+            )
+
+            setOnClickListener {
+                if (!selected) {
+                    applyKeyboardStyle(style)
+                }
+            }
+        }
+    }
+
+    private fun applyKeyboardStyle(style: KeyboardStyle) {
+        KeyboardStyleStore.setSelectedId(this, style.id)
+        buildKeyboardStyleCards()
+        showMessage(R.string.selection_saved)
+    }
+
     companion object {
         private const val LANGUAGE_PREFERENCES =
             "keyboard_x_preferences"
@@ -912,6 +1205,10 @@ class MainActivity : AppCompatActivity() {
         private const val PAGE_TERMS = "page_terms"
         private const val PAGE_INTELLECTUAL_PROPERTY =
             "page_intellectual_property"
+
+        private const val KEYBOARD_STATE_NOT_ENABLED = 0
+        private const val KEYBOARD_STATE_ENABLED = 1
+        private const val KEYBOARD_STATE_SELECTED = 2
 
         private const val SUPPORT_EMAIL = "dmolgax@gmail.com"
     }
