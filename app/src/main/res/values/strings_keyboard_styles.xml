@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Keyboard catalog: home screen -->
+    <string name="keyboard_styles_title">Choose your keyboard</string>
+    <string name="keyboard_styles_subtitle">Browse the available keyboards and apply the one you like.</string>
+    <string name="keyboard_style_apply">Apply</string>
+    <string name="keyboard_style_applied">Applied</string>
+    <string name="keyboard_style_badge_new">New</string>
+
+    <!-- One name and description pair for each keyboard style -->
+    <string name="keyboard_style_default_name">Default keyboard</string>
+    <string name="keyboard_style_default_desc">Clean keys on a plain background.</string>
+
+    <string name="keyboard_style_image_name">Image background</string>
+    <string name="keyboard_style_image_desc">The keyboard with the built-in background image.</string>
+
+</resources>
