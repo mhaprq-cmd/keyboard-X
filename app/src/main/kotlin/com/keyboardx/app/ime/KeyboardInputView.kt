@@ -1,7 +1,5 @@
 package com.keyboardx.app.ime
 
-import com.keyboardx.app.R
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -103,12 +101,18 @@ class KeyboardInputView @JvmOverloads constructor(
     private val variantBounds = mutableListOf<RectF>()
 
     /*
-     * Static background image already present in the repository:
-     * res/drawable/keyboard_background_static.jpg
+     * Keyboard style selected in the app (see KeyboardStyleCatalog).
      *
+     * A style with a background resource draws that image behind the keys.
+     * A style without one draws only the theme background color.
      * The bitmap is loaded locally; no internet connection is used.
      */
+    private var activeStyle: KeyboardStyle =
+        KeyboardStyleCatalog.getSelected(context)
+
     private var staticBackgroundBitmap: Bitmap? = null
+
+    private var loadedBackgroundRes: Int? = null
 
     private val backgroundManager = KeyboardBackgroundManager()
 
@@ -125,16 +129,7 @@ class KeyboardInputView @JvmOverloads constructor(
             }
         keyboardLayout = applyEditorActionToLayout(baseKeyboardLayout)
 
-        staticBackgroundBitmap = BitmapFactory.decodeResource(
-            resources,
-            R.drawable.keyboard_background_static
-        )
-
-        backgroundManager.setBackground(
-            KeyboardBackground.static(
-                R.drawable.keyboard_background_static
-            )
-        )
+        applySelectedStyle()
 
         applyTheme(activeTheme)
 
@@ -176,7 +171,34 @@ class KeyboardInputView @JvmOverloads constructor(
         invalidate()
     }
 
+    /*
+     * Reads the keyboard style selected in the app and applies it.
+     * The image is decoded again only when the background changes.
+     */
+    private fun applySelectedStyle() {
+        activeStyle = KeyboardStyleCatalog.getSelected(context)
+
+        val resourceId = activeStyle.backgroundRes
+
+        if (resourceId != loadedBackgroundRes) {
+            staticBackgroundBitmap = resourceId?.let {
+                BitmapFactory.decodeResource(resources, it)
+            }
+            loadedBackgroundRes = resourceId
+        }
+
+        backgroundManager.setBackground(
+            if (resourceId != null) {
+                KeyboardBackground.static(resourceId)
+            } else {
+                KeyboardBackground.none()
+            }
+        )
+    }
+
     private fun refreshThemeFromSystem() {
+        applySelectedStyle()
+
         applyTheme(
             KeyboardThemeManager.getCurrentTheme(context)
         )
@@ -190,7 +212,7 @@ class KeyboardInputView @JvmOverloads constructor(
         refreshThemeFromSystem()
         invalidate()
     }
-
+    
     fun resetState() {
         stopDeleteRepeat()
         stopLongPress()
@@ -635,7 +657,7 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun getSymbolOutput(key: Key): String? {
         return symbolOutputByLabel[key.label]
     }
-
+    
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -738,7 +760,7 @@ class KeyboardInputView @JvmOverloads constructor(
 
         return true
     }
-    
+
     private fun startLongPress(index: Int) {
         stopLongPress()
 
@@ -876,7 +898,7 @@ class KeyboardInputView @JvmOverloads constructor(
             onKeyboardActionListener?.onText(variant)
         }
     }
-
+    
     private fun startDeleteRepeat(index: Int) {
         stopDeleteRepeat()
 
