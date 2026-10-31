@@ -110,6 +110,12 @@ class KeyboardInputView @JvmOverloads constructor(
     private var activeStyle: KeyboardStyle =
         KeyboardStyleCatalog.getSelected(context)
 
+    /*
+     * Temporary style override used by preview screens.
+     * It does not save or change the user's selected style.
+     */
+    private var previewStyleOverride: KeyboardStyle? = null
+
     private var staticBackgroundBitmap: Bitmap? = null
 
     private var loadedBackgroundRes: Int? = null
@@ -172,11 +178,12 @@ class KeyboardInputView @JvmOverloads constructor(
     }
 
     /*
-     * Reads the keyboard style selected in the app and applies it.
-     * The image is decoded again only when the background changes.
+     * Applies the temporary preview style when present.
+     * Otherwise, the user's saved style remains active.
      */
     private fun applySelectedStyle() {
-        activeStyle = KeyboardStyleCatalog.getSelected(context)
+        activeStyle =
+            previewStyleOverride ?: KeyboardStyleCatalog.getSelected(context)
 
         val resourceId = activeStyle.backgroundRes
 
@@ -196,6 +203,24 @@ class KeyboardInputView @JvmOverloads constructor(
         )
     }
 
+    /*
+     * Applies a style temporarily without saving it as the selected style.
+     */
+    fun setPreviewStyle(style: KeyboardStyle) {
+        previewStyleOverride = style
+        applySelectedStyle()
+        invalidate()
+    }
+
+    /*
+     * Removes the temporary override and restores the saved style.
+     */
+    fun clearPreviewStyle() {
+        previewStyleOverride = null
+        applySelectedStyle()
+        invalidate()
+    }
+
     private fun refreshThemeFromSystem() {
         applySelectedStyle()
 
@@ -212,7 +237,7 @@ class KeyboardInputView @JvmOverloads constructor(
         refreshThemeFromSystem()
         invalidate()
     }
-    
+
     fun resetState() {
         stopDeleteRepeat()
         stopLongPress()
@@ -259,7 +284,7 @@ class KeyboardInputView @JvmOverloads constructor(
         keyboardLayout = applyEditorActionToLayout(baseKeyboardLayout)
         rebuildKeyBounds()
         invalidate()
-    }
+            }
 
     private fun applyEditorActionToLayout(
         layout: KeyboardLayout
@@ -444,7 +469,7 @@ class KeyboardInputView @JvmOverloads constructor(
             top += rowHeight + keyGap
         }
     }
-    
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -534,7 +559,7 @@ class KeyboardInputView @JvmOverloads constructor(
             0f,
             width.toFloat(),
             height.toFloat()
-        )
+                    )
 
         val imagePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             isFilterBitmap = true
@@ -657,7 +682,7 @@ class KeyboardInputView @JvmOverloads constructor(
     private fun getSymbolOutput(key: Key): String? {
         return symbolOutputByLabel[key.label]
     }
-    
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -808,8 +833,7 @@ class KeyboardInputView @JvmOverloads constructor(
             ) {
                 return
             }
-
-            val character = key.outputText ?: key.label
+                        val character = key.outputText ?: key.label
             val variants =
                 ArabicKeyboard.getLongPressVariants(character)
 
@@ -898,7 +922,7 @@ class KeyboardInputView @JvmOverloads constructor(
             onKeyboardActionListener?.onText(variant)
         }
     }
-    
+
     private fun startDeleteRepeat(index: Int) {
         stopDeleteRepeat()
 
