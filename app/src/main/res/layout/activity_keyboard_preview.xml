@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboardPreviewRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/app_background"
+    android:fitsSystemWindows="true"
+    android:layoutDirection="locale">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/previewBackText"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:text="@string/action_back"
+            android:textColor="@color/app_accent"
+            android:textSize="15sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/action_back" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/keyboard_preview_title"
+            android:textColor="@color/app_text_primary"
+            android:textSize="27sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/previewStyleName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/app_accent"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="14dp"
+            android:text="@string/keyboard_preview_notice"
+            android:textColor="@color/app_text_secondary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp" />
+
+        <EditText
+            android:id="@+id/previewInput"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="top|start"
+            android:hint="@string/keyboard_preview_hint"
+            android:inputType="textMultiLine"
+            android:padding="14dp"
+            android:textColor="@color/app_text_primary"
+            android:textColorHint="@color/app_text_secondary"
+            android:textSize="16sp"
+            android:background="@drawable/app_card_background" />
+
+        <Button
+            android:id="@+id/previewApplyButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:text="@string/keyboard_style_apply"
+            android:textAllCaps="false"
+            android:textColor="@color/app_background"
+            android:backgroundTint="@color/app_accent" />
+    </LinearLayout>
+
+    <com.keyboardx.app.ime.KeyboardInputView
+        android:id="@+id/previewKeyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
