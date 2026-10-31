@@ -13,12 +13,8 @@ import android.view.View
 /**
  * Small preview of a keyboard style for the catalog cards.
  *
- * It uses the same sources as the real keyboard:
- * - colors, corner radius and stroke from KeyboardThemeManager
- *   (so it follows the system light/dark mode),
- * - the style background drawn behind the keys, then the keys on top.
- *
- * The keys are drawn without letters. Only their appearance is shown.
+ * Uses the real keyboard layout and the same theme/style appearance
+ * as the keyboard input view.
  */
 class KeyboardStylePreviewView @JvmOverloads constructor(
     context: Context,
@@ -26,19 +22,17 @@ class KeyboardStylePreviewView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val rowWeights: List<List<Float>> = listOf(
-        List(10) { 1f },
-        List(9) { 1f },
-        List(9) { 1f },
-        listOf(1f, 1f, 4f, 1f, 1f)
-    )
-
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
+    }
+
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        style = Paint.Style.FILL
     }
 
     private val imagePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -50,6 +44,12 @@ class KeyboardStylePreviewView @JvmOverloads constructor(
     private val imageRect = RectF()
 
     private var backgroundBitmap: Bitmap? = null
+
+    private val preferences =
+        context.getSharedPreferences(
+            "keyboard_x_preferences",
+            Context.MODE_PRIVATE
+        )
 
     fun setStyle(style: KeyboardStyle) {
         backgroundBitmap = style.backgroundRes?.let { resourceId ->
@@ -75,7 +75,59 @@ class KeyboardStylePreviewView @JvmOverloads constructor(
         heightMeasureSpec: Int
     ) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
-        setMeasuredDimension(width, (width * 0.5f).toInt())
+        setMeasuredDimension(width, (width * 0.58f).toInt())
+    }
+
+    private fun getPreviewLayout(): KeyboardLayout {
+        val savedLanguages = preferences.getString(
+            "enabled_languages",
+            null
+        )
+
+        val enabledLanguages = savedLanguages
+            ?.split(",")
+            ?.mapNotNull { name ->
+                KeyboardLayout.Language.values()
+                    .firstOrNull { it.name == name.trim() }
+            }
+            ?.toSet()
+            .orEmpty()
+            .ifEmpty {
+                setOf(
+                    KeyboardLayout.Language.ARABIC,
+                    KeyboardLayout.Language.ENGLISH
+                )
+            }
+
+        val savedLanguage = preferences.getString(
+            "active_language",
+            KeyboardLayout.Language.ENGLISH.name
+        )
+
+        val preferredLanguage =
+            if (
+                savedLanguage ==
+                KeyboardLayout.Language.ARABIC.name
+            ) {
+                KeyboardLayout.Language.ARABIC
+            } else {
+                KeyboardLayout.Language.ENGLISH
+            }
+
+        val selectedLanguage =
+            if (preferredLanguage in enabledLanguages) {
+                preferredLanguage
+            } else {
+                enabledLanguages.first()
+            }
+
+        return if (
+            selectedLanguage == KeyboardLayout.Language.ARABIC
+        ) {
+            KeyboardLayoutProvider.getArabicLayout()
+        } else {
+            KeyboardLayoutProvider.getEnglishLayout()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -84,6 +136,7 @@ class KeyboardStylePreviewView @JvmOverloads constructor(
         if (width <= 0 || height <= 0) return
 
         val theme = KeyboardThemeManager.getCurrentTheme(context)
+        val layout = getPreviewLayout()
 
         val viewWidth = width.toFloat()
         val viewHeight = height.toFloat()
@@ -103,14 +156,24 @@ class KeyboardStylePreviewView @JvmOverloads constructor(
         canvas.clipPath(clipPath)
 
         fillPaint.color = theme.backgroundColor
-        canvas.drawRect(0f, 0f, viewWidth, viewHeight, fillPaint)
+        canvas.drawRect(
+            0f,
+            0f,
+            viewWidth,
+            viewHeight,
+            fillPaint
+        )
 
         backgroundBitmap?.let { bitmap ->
             imageRect.set(0f, 0f, viewWidth, viewHeight)
-            canvas.drawBitmap(bitmap, null, imageRect, imagePaint)
+            canvas.drawBitmap(
+                bitmap,
+                null,
+                imageRect,
+                imagePaint
+            )
         }
 
-        // Same proportions as the real keyboard, scaled to the preview width.
         val scale =
             viewWidth / resources.displayMetrics.widthPixels.toFloat()
 
@@ -123,43 +186,109 @@ class KeyboardStylePreviewView @JvmOverloads constructor(
             maxOf(1f, dp(theme.keyStrokeWidthDp) * scale)
         strokePaint.color = theme.keyStrokeColor
         fillPaint.color = theme.keyColor
+        textPaint.color = theme.textColor
 
-        val rowCount = rowWeights.size
+        val rows = layout.rows
+        if (rows.isEmpty()) {
+            canvas.restore()
+            return
+        }
 
         val rowHeight =
-            (viewHeight - padding * 2f - gap * (rowCount - 1)) / rowCount
+            (viewHeight - padding * 2f - gap * (rows.size - 1)) /
+                rows.size
 
         var top = padding
 
-        rowWeights.forEach { row ->
-            val totalGap = gap * (row.size - 1)
-            val totalWeight = row.sum()
+        rows.forEach { row ->
+            val keys = row.keys
 
-            val availableWidth =
-                viewWidth - padding * 2f - totalGap
+            if (keys.isNotEmpty()) {
+                val totalGap = gap * (keys.size - 1)
 
-            var left = padding
+                val totalWeight = keys.sumOf { key ->
+                    key.widthWeight.coerceAtLeast(0.1f).toDouble()
+                }.toFloat()
 
-            row.forEach { weight ->
-                val keyWidth = availableWidth * weight / totalWeight
+                val availableWidth =
+                    viewWidth - padding * 2f - totalGap
 
-                keyRect.set(
-                    left + inset,
-                    top + inset,
-                    left + keyWidth - inset,
-                    top + rowHeight - inset
-                )
+                var left = padding
 
-                canvas.drawRoundRect(keyRect, radius, radius, fillPaint)
-                canvas.drawRoundRect(keyRect, radius, radius, strokePaint)
+                keys.forEach { key ->
+                    val weight =
+                        key.widthWeight.coerceAtLeast(0.1f)
 
-                left += keyWidth + gap
+                    val keyWidth =
+                        availableWidth * weight / totalWeight
+
+                    keyRect.set(
+                        left + inset,
+                        top + inset,
+                        left + keyWidth - inset,
+                        top + rowHeight - inset
+                    )
+
+                    canvas.drawRoundRect(
+                        keyRect,
+                        radius,
+                        radius,
+                        fillPaint
+                    )
+
+                    canvas.drawRoundRect(
+                        keyRect,
+                        radius,
+                        radius,
+                        strokePaint
+                    )
+
+                    val label = getPreviewLabel(key)
+
+                    if (label.isNotEmpty()) {
+                        textPaint.textSize = when {
+                            label.length > 2 ->
+                                dp(8f) * scale
+
+                            else ->
+                                dp(10f) * scale
+                        }
+
+                        val fontMetrics = textPaint.fontMetrics
+
+                        val textCenterY =
+                            keyRect.centerY() -
+                                (fontMetrics.ascent +
+                                    fontMetrics.descent) / 2f
+
+                        canvas.drawText(
+                            label,
+                            keyRect.centerX(),
+                            textCenterY,
+                            textPaint
+                        )
+                    }
+
+                    left += keyWidth + gap
+                }
             }
 
             top += rowHeight + gap
         }
 
         canvas.restore()
+    }
+
+    private fun getPreviewLabel(key: Key): String {
+        return when (key.action) {
+            KeyAction.SPACE -> ""
+            KeyAction.SHIFT -> "⇧"
+            KeyAction.DELETE -> "⌫"
+            KeyAction.ENTER -> "↵"
+            KeyAction.SEARCH -> "⌕"
+            KeyAction.SWITCH_LANGUAGE -> "🌐"
+            else -> key.label
+        }
     }
 
     private fun dp(value: Float): Float {
