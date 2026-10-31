@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Keyboard preview page -->
+    <string name="keyboard_style_preview">Preview</string>
+    <string name="keyboard_preview_notice">You are previewing this keyboard. It is not applied until you tap Apply.</string>
+
+</resources>
