@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- صفحة معاينة لوحة المفاتيح -->
+    <string name="keyboard_style_preview">معاينة</string>
+    <string name="keyboard_preview_notice">أنت تعاين هذه اللوحة. لن تُطبَّق إلا بعد الضغط على تطبيق.</string>
+
+</resources>
