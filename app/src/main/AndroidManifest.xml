@@ -31,6 +31,12 @@
             android:exported="false"
             android:theme="@style/Theme.KeyboardX" />
 
+        <activity
+            android:name=".KeyboardPreviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KeyboardX"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
         <service
             android:name=".ime.KeyboardIMEService"
             android:label="@string/ime_name"
