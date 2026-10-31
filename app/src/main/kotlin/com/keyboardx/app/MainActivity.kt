@@ -138,6 +138,10 @@ class MainActivity : AppCompatActivity() {
         if (::appLanguageArabicCard.isInitialized) {
             refreshAppLanguageSelection()
         }
+
+        if (::keyboardStylesContainer.isInitialized) {
+            buildKeyboardStyleCards()
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -255,7 +259,7 @@ class MainActivity : AppCompatActivity() {
             .putString(KEY_ACTIVE_LANGUAGE, initialLanguage)
             .apply()
     }
-    
+
     private fun setupNavigation() {
         navHome.setOnClickListener {
             showScreen(SCREEN_HOME)
@@ -321,8 +325,7 @@ class MainActivity : AppCompatActivity() {
             parsed
         }
     }
-
-    private fun toggleKeyboardLanguage(language: String) {
+        private fun toggleKeyboardLanguage(language: String) {
         val enabled = getEnabledKeyboardLanguages().toMutableSet()
 
         if (language in enabled) {
@@ -441,7 +444,7 @@ class MainActivity : AppCompatActivity() {
             refreshSoundStatus()
         }
     }
-    
+
     private fun addInformationAndSupportLinks() {
         addSettingsLink(
             title = getString(R.string.about_title)
@@ -837,7 +840,7 @@ class MainActivity : AppCompatActivity() {
             mainScrollView.scrollTo(0, 0)
         }
     }
-    
+
     private fun refreshKeyboardStatus() {
         val inputMethodManager =
             getSystemService(Context.INPUT_METHOD_SERVICE)
@@ -972,25 +975,42 @@ class MainActivity : AppCompatActivity() {
      * Keyboard catalog.
      * The cards are built from KeyboardStyleCatalog, so adding a new
      * keyboard never requires a change in this file or in the layout.
-     */
+          */
     private fun buildKeyboardStyleCards() {
         keyboardStylesContainer.removeAllViews()
-
-        val selectedId = KeyboardStyleCatalog
-            .findById(KeyboardStyleStore.getSelectedId(this))
-            .id
-
-        KeyboardStyleCatalog.all.forEach { style ->
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = dp(14)
+        val selectedId = KeyboardStyleCatalog.findById(
+            KeyboardStyleStore.getSelectedId(this)
+        ).id
+        KeyboardStyleCatalog.all.chunked(2).forEach { rowStyles ->
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.TOP
             }
-
+            rowStyles.forEachIndexed { index, style ->
+                val params = LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                ).apply {
+                    if (index == 0) marginEnd = dp(7) else marginStart = dp(7)
+                }
+                row.addView(
+                    createKeyboardStyleCard(style, style.id == selectedId),
+                    params
+                )
+            }
+            if (rowStyles.size == 1) {
+                row.addView(
+                    View(this),
+                    LinearLayout.LayoutParams(0, 1, 1f).apply {
+                        marginStart = dp(7)
+                    }
+                )
+            }
             keyboardStylesContainer.addView(
-                createKeyboardStyleCard(style, style.id == selectedId),
-                params
+                row,
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = dp(14) }
             )
         }
     }
@@ -1002,12 +1022,10 @@ class MainActivity : AppCompatActivity() {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.app_card_background)
-            setPadding(dp(14), dp(14), dp(14), dp(14))
+            setPadding(dp(10), dp(10), dp(10), dp(10))
         }
-
         val preview = KeyboardStylePreviewView(this)
         preview.setStyle(style)
-
         card.addView(
             preview,
             LinearLayout.LayoutParams(
@@ -1015,94 +1033,106 @@ class MainActivity : AppCompatActivity() {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         )
-
         val nameView = TextView(this).apply {
             setText(style.nameRes)
-            textSize = 16f
+            textSize = 15f
             setTypeface(typeface, Typeface.BOLD)
-            setTextColor(
-                ContextCompat.getColor(
-                    this@MainActivity,
-                    R.color.app_text_primary
-                )
-            )
+            setTextColor(ContextCompat.getColor(
+                this@MainActivity, R.color.app_text_primary
+            ))
         }
-
         val descriptionView = TextView(this).apply {
             setText(style.descriptionRes)
-            textSize = 13f
+            textSize = 12f
             setTextColor(inactiveColor)
         }
-
         val nameRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-
-        nameRow.addView(nameView)
-
+        nameRow.addView(
+            nameView,
+            LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+            )
+        )
         if (style.isNew) {
             nameRow.addView(
                 createNewBadge(),
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    marginStart = dp(8)
-                }
+                ).apply { marginStart = dp(4) }
             )
         }
-
-        val textColumn = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-
-        textColumn.addView(nameRow)
-        textColumn.addView(
-            descriptionView,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dp(2)
-            }
-        )
-
-        val infoRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        infoRow.addView(
-            textColumn,
-            LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1f
-            )
-        )
-
-        infoRow.addView(
-            createApplyButton(style, selected),
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                dp(40)
-            ).apply {
-                marginStart = dp(12)
-            }
-        )
-
         card.addView(
-            infoRow,
+            nameRow,
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dp(12)
-            }
+            ).apply { topMargin = dp(10) }
         )
-
+        card.addView(
+            descriptionView,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = dp(3) }
+        )
+        val actions = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        actions.addView(
+            createApplyButton(style, selected),
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(40)
+            )
+        )
+        actions.addView(
+            createPreviewButton(style),
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(40)
+            ).apply { topMargin = dp(6) }
+        )
+        card.addView(
+            actions,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = dp(10) }
+        )
         return card
+    }
+
+    private fun createPreviewButton(style: KeyboardStyle): Button {
+        return Button(this).apply {
+            isAllCaps = false
+            textSize = 12f
+            text = if (resources.configuration.locales[0]?.language == "ar") {
+                "معاينة"
+            } else {
+                "Preview"
+            }
+            setTextColor(activeColor)
+            ViewCompat.setBackgroundTintList(
+                this,
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(
+                        this@MainActivity, R.color.app_accent_soft
+                    )
+                )
+            )
+            setOnClickListener {
+                startActivity(
+                    Intent(
+                        this@MainActivity,
+                        KeyboardPreviewActivity::class.java
+                    ).putExtra(
+                        KeyboardPreviewActivity.EXTRA_STYLE_ID, style.id
+                    )
+                )
+            }
+        }
     }
 
     private fun createNewBadge(): TextView {
